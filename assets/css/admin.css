@@ -1,0 +1,128 @@
+/* Calendar - modal */
+#wddp-booking-modal {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 20px;
+    z-index: 10000;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+#wddp-booking-modal .modal-content {
+    white-space: pre-wrap;
+    margin-bottom: 15px;
+}
+
+#wddp-booking-modal .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+#wddp-booking-modal .button {
+    font-size: 13px;
+    padding: 6px 12px;
+}
+
+#wddp-booking-modal .modal-content {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+#wddp-booking-modal .modal-content p {
+    margin: 0 0 8px 0;
+}
+
+
+
+
+/* Calender - color list */
+.wddp-calendar-legend {
+    margin-bottom: 1em;
+}
+.wddp-calendar-legend .legend-item {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+
+/* Spinner on admin */
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #eee;
+    border-top: 3px solid #007cba;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+/* Notice styleing */
+.wddp-checkout-notice {
+    border-left: 4px solid #ff9900;
+    background: #fff7e6;
+    padding: 1em;
+    font-size: 0.95em;
+}
+
+
+/* Booking admin */
+
+/* Gør nogle kolonner smallere/bredere for bedre læsbarhed */
+.wp-list-table .column-cb      { width: 36px; }
+.wp-list-table .column-id      { width: 50px; text-align: center; }
+.wp-list-table .column-order   { width: 140px; }
+.wp-list-table .column-price   { width: 110px; white-space: nowrap; }
+.wp-list-table .column-dates   { width: 100px; }
+.wp-list-table .column-customer{ width:18%; } /* mere plads til de 3 linjer */
+.wp-list-table .column-dogs    { width:18%; }
+.wp-list-table .column-actions { width: 60px; }
+
+/* Tættere rækker og pæn wrap */
+.wrap .wp-list-table td { vertical-align: middle; }
+
+/* Kunde-kolonne, “sub”-linjer */
+.wp-list-table td .sub { color:#555; margin-top:2px; }
+
+/* Datoer kompakt */
+.mhhc-dates { line-height:1.25; }
+
+.mhhc-actions .button { margin-right:6px; margin-bottom: 5px; }
+
+
+/* Status badges */
+.mhhc-status { padding:.15em .5em; border-radius:6px; font-weight:600; display:inline-block; }
+.mhhc-status--pending-customer { background:#fff3cd; color:#7a5d00; }
+.mhhc-status--pending-review   { background:#e7f1ff; color:#0b4b91; }
+.mhhc-status--approved         { background:#e6f4ea; color:#1e7e34; }
+.mhhc-status--rejected         { background:#fde7e9; color:#8a1c1c; }
+
+/* Listebord styling tweaks */
+.wrap .wp-list-table td { vertical-align: middle; }
+
+/* Hunde styling */
+.mhhc-dogs { margin:0; padding-left:1.1em; }
+.mhhc-dogs li { margin:0 0 .4em; }
+.mhhc-dogs small { display:block; color:#555; margin-top:.05em; }
+.mhhc-dogs .notes { color:#444; margin-top:.15em; font-style:italic; }

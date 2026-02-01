@@ -1,0 +1,252 @@
+/* Global reset for formularen */
+.mhhc-booking-form *,
+.mhhc-booking-form *::before,
+.mhhc-booking-form *::after {
+    box-sizing: border-box;
+}
+
+.mhhc-booking-form {
+    font-family: 'Roboto', sans-serif;
+    max-width: 760px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+}
+
+.mhhc-booking-form *,
+.mhhc-booking-form *::before,
+.mhhc-booking-form *::after {
+    box-sizing: border-box;
+}
+
+.mhhc-booking-form h2,
+.mhhc-booking-form h3 {
+    color: #1a2c37;
+    margin-bottom: 1rem;
+}
+
+.mhhc-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.mhhc-form-group {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.mhhc-form-group label {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #1a2c37;
+}
+
+.mhhc-form-group input,
+.mhhc-form-group textarea {
+    padding: 12px 14px;
+    font-size: 14px;
+    border: 1px solid #b4c0cc;
+    border-radius: 6px;
+    background: #fff;
+    color: #1a2c37;
+    transition: border 0.2s;
+}
+
+.mhhc-form-group input:focus,
+.mhhc-form-group textarea:focus {
+    border-color: #265cf2;
+    outline: none;
+}
+
+.mhhc-form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.mhhc-dog-fields h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    color: #33434c;
+}
+
+.mhhc-booking-form button {
+    padding: 12px 20px;
+    background-color: #265cf2;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 16px;
+}
+
+.mhhc-booking-form button[disabled] {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.mhhc-add-remove-btn {
+    background-color: transparent;
+    border: 1px solid #265cf2;
+    color: #265cf2;
+    font-weight: bold;
+    padding: 8px 12px;
+    margin-top: 8px;
+    border-radius: 4px;
+}
+
+.mhhc-add-remove-btn:hover {
+    background-color: #f0f5ff;
+}
+
+.mhhc-booking-form label input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.mhhc-form-message {
+    background: #fff3cd;
+    border-left: 4px solid #ffeeba;
+    padding: 12px;
+    margin-top: 16px;
+    font-size: 14px;
+    color: #856404;
+}
+
+
+.mhhc-form-buttons > * {
+    margin-right: 5px;
+}
+
+.mhhc-price-box {
+    background: #e6f7ff;
+    border-left: 4px solid #91d5ff;
+    padding: 12px;
+    margin-top: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #1A2C37;
+}
+
+/* Centreret knap */
+.mhhc-submit-wrapper {
+    text-align: center;
+}
+
+/* Select style */
+.mhhc-booking-form select {
+    padding: 12px 14px;
+    font-size: 14px;
+    border: 1px solid #b4c0cc;
+    border-radius: 6px;
+    background: #fff;
+    color: #1a2c37;
+    transition: border 0.2s;
+    width: 100%;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='none' stroke='%231a2c37' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M19 9l-7 7-7-7'></path></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 1em;
+}
+
+.mhhc-booking-form select:focus {
+    border-color: #265cf2;
+    outline: none;
+}
+
+/* Error style */
+.mhhc-field-error {
+    color: #B4190F;            /* Amelia error-farve */
+    font-size: 12px;
+    margin-top: 6px;
+}
+
+
+/* Sørg for at input + ikon står ved siden af hinanden */
+.mhhc-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0; /* vigtigt så input kan krympe uden at bryde layout */
+}
+
+.mhhc-input-control {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* Selve info-ikonet – ligner et ikon, ikke en “knap” */
+.mhhc-info-icon {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    background-color: transparent !important;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mhhc-info-icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,.08));
+}
+
+.mhhc-info-icon:hover svg {
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,.15));
+}
+
+/* Label som egen række for pæn stacking */
+.mhhc-label {
+    display: block;
+    font-weight: 500;
+    color: #1A2C37;
+    margin-bottom
+
+
+
+
+
+
+    : 6px;
+}
+
+/* Info-tekst og fejl-tekst i hver sin boks */
+.mhhc-help-text{
+    margin-top: 8px;
+    font-size: 13px;
+    color: #0E1920;
+    background:#f7fbff;
+    border-left: 3px solid #91d5ff;
+    padding: 10px 12px;
+    border-radius: 4px;
+}
+
+.mhhc-field-error {
+    margin-top: 8px;
+    color: #B4190F;
+    background: #FEF3F2;
+    border-left: 3px solid #FCA5A5;
+    padding: 10px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+/* Select/input fuld bredde inde i .mhhc-input-control */
+.mhhc-input-control select,
+.mhhc-input-control input,
+.mhhc-input-control textarea {
+    width: 100%;
+}

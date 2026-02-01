@@ -1,0 +1,14 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wd-dogpension/book-form",
+  "title": "Book hundepension",
+  "category": "wd-dogpension",
+  "icon": "calendar-alt",
+  "description": "Formular til at book plads i hundepension",
+  "textdomain": "wd-dog-pension",
+  "supports": { "html": false },
+  "editorScript": "file:./build/index.js",
+  "viewScript":   "file:./build/view.js",
+  "style":        "file:./style.css"
+}
