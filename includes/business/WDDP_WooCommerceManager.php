@@ -4,6 +4,37 @@ class WDDP_WooCommerceManager
 {
 
 
+    public static function validateBookingProduct(\WC_Product $product): array {
+        $errors = [];
+
+        if (!$product->is_type('simple')) {
+            $errors[] = 'Produktet er ikke et simpelt produkt.';
+        }
+
+        if ($product->get_status() !== 'publish') {
+            $errors[] = 'Produktet er ikke udgivet.';
+        }
+
+        if ($product->get_price() <= 0) {
+            $errors[] = 'Produktet mangler pris.';
+        }
+
+        if ($product->is_on_sale()) {
+            $errors[] = 'Produktet må ikke være på tilbud.';
+        }
+
+        if (!$product->is_in_stock()) {
+            $errors[] = 'Produktet er ikke på lager.';
+        }
+
+        if (!$product->get_name()) {
+            $errors[] = 'Produktet mangler navn.';
+        }
+
+        return $errors;
+    }
+
+
     public static function deleteOrder($order_id){
         if ($order_id && get_post($order_id)) {
             add_filter('woocommerce_allow_delete_order', '__return_true');

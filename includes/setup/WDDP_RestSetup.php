@@ -11,6 +11,15 @@ class WDDP_RestSetup
 
 
     public static function registerRoutes(){
+        register_rest_route(self::$apiName, '/search_products', [
+            'methods' => 'GET',
+            'callback' => [self::class, 'searchProducts'],
+            'permission_callback' => function () {
+                return current_user_can('manage_woocommerce');
+            },
+        ]);
+
+
         register_rest_route(self::$apiName, '/config', [
             'methods' => 'GET',
             'callback' => [self::class, 'getConfig'],
@@ -37,6 +46,35 @@ class WDDP_RestSetup
         ]);
 
     }
+
+    public static function searchProducts(\WP_REST_Request $request) {
+        $search = sanitize_text_field($request->get_param('q') ?? '');
+
+        $query = new \WC_Product_Query([
+            'limit' => 20,
+            's' => $search,
+            'return' => 'objects',
+        ]);
+
+        $products = $query->get_products();
+        $results = [];
+
+        foreach ($products as $product) {
+            if (!$product instanceof \WC_Product) continue;
+            $label = $product->get_name() . ' (#' . $product->get_id() . ')';
+            $errors = WDDP_WooCommerceManager::validateBookingProduct($product);
+            $valid = empty($errors);
+            $badge = $valid ? '✅' : '❌';
+
+            $results[] = [
+                'id' => $product->get_id(),
+                'text' => "$badge $label",
+            ];
+        }
+
+        return new \WP_REST_Response(['results' => $results]);
+    }
+
 
     public static function createBooking(\WP_REST_Request $request) {
         // 1. Læs data fra request

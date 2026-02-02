@@ -147,14 +147,37 @@
 
         private function sectionWordpress() {
             $opt = WDDP_Options::get( WDDP_Options::OPTION_WC, WDDP_Options::defaults_wc() );
+            $value = $opt['product_id'] ?? 0;
             ?>
             <h3>WooCommerce</h3>
             <table class="form-table">
                 <tr>
                     <th><label for="wddp_wc_product_id">Produkt til booking</label></th>
                     <td>
-                        <input type="number" id="wddp_wc_product_id" name="<?php echo esc_attr(WDDP_Options::OPTION_WC); ?>[product_id]" value="<?php echo esc_attr($opt['product_id']); ?>" class="regular-text">
-                        <p class="description">Angiv produkt-ID for bookingproduktet.</p>
+                        <select id="wddp_wc_product" name="wddp_hp_wc[product_id]" style="width: 300px;">
+                            <?php if ($value):
+                                $product = wc_get_product($value);
+                                if ($product):
+                                    $label = $product->get_name() . ' (#' . $product->get_id() . ')';
+                                    echo '<option value="' . esc_attr($value) . '" selected>' . esc_html($label) . '</option>';
+                                endif;
+                            endif; ?>
+                        </select>
+
+                        <p class="description">Vælg et simpelt, aktivt produkt med pris – kun gyldige produkter kan gemmes.</p>
+
+
+                        <!-- INFO-BOKS OM FILTRERING -->
+                        <p class="description">
+                            For at et produkt kan vælges, skal det opfylde følgende krav:
+                        </p>
+                        <ul style="margin-top: 0; margin-left: 1.5em; list-style: disc;">
+                            <li>Produktet skal være <strong>udgivet</strong></li>
+                            <li>Det skal være af typen <strong>simpelt produkt</strong></li>
+                            <li>Det skal have <strong>en pris</strong></li>
+                            <li>Det må <strong>ikke være på tilbud</strong></li>
+                            <li>Det skal være <strong>på lager</strong></li>
+                        </ul>
                     </td>
                 </tr>
                 <tr>

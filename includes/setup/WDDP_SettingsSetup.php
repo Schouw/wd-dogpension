@@ -80,13 +80,35 @@ class WDDP_SettingsSetup {
         if ( $in === null ) {
             return get_option( WDDP_Options::OPTION_WC, WDDP_Options::defaults_wc() );
         }
+
+        $product_id = isset($in['product_id']) ? absint($in['product_id']) : 0;
+
+        // Valider produkt, hvis muligt
+        if ($product_id > 0) {
+            $product = wc_get_product($product_id);
+            if ($product) {
+                $errors = WDDP_WooCommerceManager::validateBookingProduct($product);
+                if (!empty($errors)) {
+                    // Vis fejl i admin og behold eksisterende settings
+                    add_settings_error(
+                        'wddp_hp_wc',
+                        'invalid_product',
+                        'Valgt produkt er ugyldigt: ' . implode(', ', $errors)
+                    );
+                    return get_option(WDDP_Options::OPTION_WC); // behold eksisterende værdi
+                }
+            }
+        }
+
+        // Returnér det samlede array – med valid product_id
         return [
-            'product_id' => isset($in['product_id']) ? absint($in['product_id']) : 0,
-            'redirect'   => in_array( $in['redirect'] ?? 'checkout', ['checkout','cart'], true ) ? $in['redirect'] : 'checkout',
-            'notify_admin_on_create' => ! empty($in['notify_admin_on_create']) ? 1 : 0,
+            'product_id' => $product_id,
+            'redirect'   => in_array($in['redirect'] ?? 'checkout', ['checkout','cart'], true) ? $in['redirect'] : 'checkout',
+            'notify_admin_on_create' => !empty($in['notify_admin_on_create']) ? 1 : 0,
             'checkout_notice' => isset($in['checkout_notice']) ? sanitize_textarea_field($in['checkout_notice']) : '',
         ];
     }
+
 
     public static function sanitize_dogs( $in ) {
         if ( $in === null ) {

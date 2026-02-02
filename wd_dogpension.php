@@ -18,6 +18,7 @@ define( 'WT_DOG_PENSION_VERSION', '1.0.0' );
 define( 'WT_DOG_PENSION_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WT_DOG_PENSION_URL', plugin_dir_url( __FILE__ ) );
 define('WT_DOG_PENSION_TEXT_DOMAIN', 'wd-dog-pension');
+
 define('WT_DEBUG', true);
 
 // Load everything
