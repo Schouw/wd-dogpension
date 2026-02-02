@@ -60,29 +60,8 @@ const FieldWithInfo = ({
         "aria-controls": `${inputId}-help`,
         onClick: () => setOpen(o => !o),
         title: "Hvorfor er dette p\xE5kr\xE6vet?",
-        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("svg", {
-          viewBox: "0 0 24 24",
-          "aria-hidden": "true",
-          focusable: "false",
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("circle", {
-            cx: "12",
-            cy: "12",
-            r: "10",
-            fill: "currentColor"
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("rect", {
-            x: "11",
-            y: "10",
-            width: "2",
-            height: "7",
-            rx: "1",
-            fill: "#fff"
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("circle", {
-            cx: "12",
-            cy: "7",
-            r: "1.25",
-            fill: "#fff"
-          })]
-        })
+        tabIndex: -1,
+        children: "\u2753"
       })]
     }), open && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
       id: `${inputId}-help`,
@@ -366,12 +345,20 @@ const BookingForm = () => {
 
     // 6) Checkbox
     if (!acceptTerms) newErrors.acceptTerms = 'Du skal acceptere betingelserne.';
-    submitBooking();
 
     // Gem fejl + besked
     setErrors(newErrors);
     const hasErrors = Object.values(newErrors).some(Boolean);
-    setMessage(hasErrors ? 'Ret venligst fejlene i formularen.' : 'Formularen er klar til at blive sendt ✅');
+
+    // HVis fejl - så vis ret besked
+    if (hasErrors) {
+      setMessage('Ret venligst fejlene i formularen.');
+      return;
+    }
+
+    // Hvis valid, så udfør booking
+    setMessage('Formularen er klar til at blive sendt! ✅');
+    submitBooking();
   };
 
   // Hjælper til at vise fejl-tekst (datoer = altid live; andre kun efter submit)
@@ -505,6 +492,7 @@ const BookingForm = () => {
             id: `dog_${index}_weight`,
             type: "number",
             step: "0.1",
+            min: "0",
             value: dog.weight,
             onChange: e => handleDogChange(index, 'weight', e.target.value)
           })

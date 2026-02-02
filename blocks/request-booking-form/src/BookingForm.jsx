@@ -24,7 +24,6 @@ const emptyDog = () => ({
 
                 <div className="mhhc-input-row">
                     <div className="mhhc-input-control">{children}</div>
-
                     <button
                         type="button"
                         className="mhhc-info-icon"
@@ -32,14 +31,8 @@ const emptyDog = () => ({
                         aria-controls={`${inputId}-help`}
                         onClick={() => setOpen((o) => !o)}
                         title="Hvorfor er dette påkrævet?"
-                    >
-                        {/* Info-ikon */}
-                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <circle cx="12" cy="12" r="10" fill="currentColor" />
-                            <rect x="11" y="10" width="2" height="7" rx="1" fill="#fff" />
-                            <circle cx="12" cy="7" r="1.25" fill="#fff" />
-                        </svg>
-                    </button>
+                        tabIndex={-1}
+                    >❓</button>
                 </div>
 
                 {open && (
@@ -352,16 +345,20 @@ const BookingForm = () => {
         // 6) Checkbox
         if (!acceptTerms) newErrors.acceptTerms = 'Du skal acceptere betingelserne.';
 
-        submitBooking();
-
         // Gem fejl + besked
         setErrors(newErrors);
         const hasErrors = Object.values(newErrors).some(Boolean);
-        setMessage(
-            hasErrors
-                ? 'Ret venligst fejlene i formularen.'
-                : 'Formularen er klar til at blive sendt ✅'
-        );
+
+        // HVis fejl - så vis ret besked
+        if (hasErrors) {
+            setMessage('Ret venligst fejlene i formularen.');
+            return;
+        }
+
+        // Hvis valid, så udfør booking
+        setMessage('Formularen er klar til at blive sendt! ✅');
+        submitBooking();
+
 
 
     };
@@ -521,6 +518,7 @@ const BookingForm = () => {
                                 id={`dog_${index}_weight`}
                                 type="number"
                                 step="0.1"
+                                min="0"
                                 value={dog.weight}
                                 onChange={(e) =>
                                     handleDogChange(index, 'weight', e.target.value)
