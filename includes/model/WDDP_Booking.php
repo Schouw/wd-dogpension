@@ -352,6 +352,6 @@ class WDDP_BookingDog
 
     public function getFullDescription(): string
     {
-        return sprintf('%s (%s), %d år, %.1f kg', $this->name, $this->breed, $this->age, $this->weight);
+        return sprintf('%s (%s), %d, %.1f kg', $this->name, $this->breed, $this->age, $this->weight);
     }
 }

@@ -106,7 +106,7 @@ class WDDP_RestSetup
                 return [
                     'name'   => sanitize_text_field($dog['name'] ?? ''),
                     'breed'  => sanitize_text_field($dog['breed'] ?? ''),
-                    'age'    => (int) ($dog['age'] ?? 0),
+                    'age'    => sanitize_text_field($dog['age'] ?? ''),
                     'weight' => (float) ($dog['weight'] ?? 0),
                     'notes'  => sanitize_textarea_field($dog['notes'] ?? ''),
                 ];

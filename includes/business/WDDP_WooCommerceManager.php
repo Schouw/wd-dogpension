@@ -184,7 +184,7 @@ class WDDP_WooCommerceManager
             $item_data[] = [
                 'name' => 'Hund ' . ($i + 1),
                 'value' => sprintf(
-                    '%s (%s), %s år, %s kg',
+                    '%s (%s), %s, %s kg',
                     $dog['name'] ?? '-', $dog['breed'] ?? '-', $dog['age'] ?? '-', $dog['weight'] ?? '-'
                 ),
             ];

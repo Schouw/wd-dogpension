@@ -80,7 +80,7 @@ class WDDP_WooCommerceSetup
         $item->add_meta_data('Tider', 'Aflevering: ' . $booking['arrival_time'] . ' / Afhentning: ' . $booking['departure_time']);
         foreach ($booking['dogs'] as $i => $dog) {
             $item->add_meta_data('Hund ' . ($i + 1), sprintf(
-                '%s (%s), %s år, %s kg',
+                '%s (%s), %s, %s kg',
                 $dog['name'] ?? '-', $dog['breed'] ?? '-', $dog['age'] ?? '-', $dog['weight'] ?? '-'
             ));
 

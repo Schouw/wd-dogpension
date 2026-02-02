@@ -188,8 +188,8 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
             echo '<strong>Hund ' . ($i + 1) . '</strong>';
             printf('<p><label>Navn<br><input type="text" name="dogs[%d][name]" value="%s" required></label></p>', $i, esc_attr($dog['name'] ?? ''));
             printf('<p><label>Race<br><input type="text" name="dogs[%d][breed]" value="%s" required></label></p>', $i, esc_attr($dog['breed'] ?? ''));
-            printf('<p><label>Alder<br><input type="number" name="dogs[%d][age]" value="%s" required></label></p>', $i, esc_attr($dog['age'] ?? ''));
-            printf('<p><label>Vægt<br><input type="number" step="0.1" name="dogs[%d][weight]" value="%s" required></label></p>', $i, esc_attr($dog['weight'] ?? ''));
+            printf('<p><label>Alder<br><input type="text" name="dogs[%d][age]" value="%s" required></label></p>', $i, esc_attr($dog['age'] ?? ''));
+            printf('<p><label>Vægt<br><input type="text" step="0.1" name="dogs[%d][weight]" value="%s" required></label></p>', $i, esc_attr($dog['weight'] ?? ''));
             printf('<p><label>Noter<br><textarea name="dogs[%d][notes]">%s</textarea></label></p>', $i, esc_textarea($dog['notes'] ?? ''));
             echo '<p><button type="button" class="button remove-dog">Fjern hund</button></p>';
             echo '</div>';
@@ -278,8 +278,8 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
             $dogs[] = [
                 'name'   => sanitize_text_field($dog['name'] ?? ''),
                 'breed'  => sanitize_text_field($dog['breed'] ?? ''),
-                'age'    => absint($dog['age'] ?? 0),
-                'weight' => floatval($dog['weight'] ?? 0),
+                'age'    => sanitize_text_field($dog['age'] ?? 0),
+                'weight' => sanitize_text_field($dog['weight'] ?? 0),
                 'notes'  => sanitize_textarea_field($dog['notes'] ?? ''),
             ];
         }

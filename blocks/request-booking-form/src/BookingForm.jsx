@@ -330,7 +330,7 @@ const BookingForm = () => {
         const h1 = dogs[0] || emptyDog();
         if (!h1.name.trim()) newErrors.dog_0_name = 'Navn er påkrævet.';
         if (!h1.breed.trim()) newErrors.dog_0_breed = 'Race er påkrævet.';
-        if (isEmptyNumber(h1.age)) newErrors.dog_0_age = 'Alder er påkrævet.';
+        if (!h1.age.trim()) newErrors.dog_0_age = 'Alder er påkrævet.';
         if (isEmptyNumber(h1.weight))
             newErrors.dog_0_weight = 'Vægt er påkrævet.';
 
@@ -338,7 +338,9 @@ const BookingForm = () => {
         dogs.forEach((dog, i) => {
             if (!dog.name.trim()) newErrors[`dog_${i}_name`] = 'Navn er påkrævet.';
             if (!dog.breed.trim()) newErrors[`dog_${i}_breed`] = 'Race er påkrævet.';
-            if (isEmptyNumber(dog.age)) newErrors[`dog_${i}_age`] = 'Alder er påkrævet.';
+            if (!dog.age || !dog.age.trim()) {
+                newErrors[`dog_${i}_age`] = 'Alder er påkrævet.';
+            }
             if (isEmptyNumber(dog.weight)) newErrors[`dog_${i}_weight`] = 'Vægt er påkrævet.';
         });
 
@@ -483,8 +485,7 @@ const BookingForm = () => {
                         >
                             <input
                                 id={`dog_${index}_age`}
-                                type="number"
-                                min="0"
+                                text
                                 value={dog.age}
                                 onChange={(e) => handleDogChange(index, 'age', e.target.value)}
                             />

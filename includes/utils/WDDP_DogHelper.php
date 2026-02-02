@@ -62,7 +62,7 @@ class WDDP_DogHelper
             $weight = $dog['weight'] ?? '—';
 
             $line = sprintf(
-                '%s (%s), %s år, %s kg',
+                '%s (%s), %s, %s kg',
                 esc_html($name),
                 esc_html($breed),
                 esc_html($age),
