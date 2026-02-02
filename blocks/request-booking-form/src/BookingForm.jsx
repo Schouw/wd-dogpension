@@ -70,6 +70,9 @@ const BookingForm = () => {
     const [priceDog2, setPriceDog2] = useState(200);
     const [specialPrices, setSpecialPrices] = useState([]); // [{from,to,dog1,dog2}, ...]
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+
     /* =========================
        Utils (datoer)
        ========================= */
@@ -305,7 +308,8 @@ const BookingForm = () => {
     const isEmptyNumber = (v) =>
         v === '' || v === null || Number.isNaN(Number(v));
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
+        setIsSubmitting(true);
         setSubmitted(true);
 
         // 1) dato-fejl
@@ -358,9 +362,18 @@ const BookingForm = () => {
         }
 
         // Hvis valid, så udfør booking
-        setMessage('Formularen er klar til at blive sendt! ✅');
-        submitBooking();
+        try {
 
+            setMessage('Formularen er klar til at blive sendt! ✅');
+            await  submitBooking();
+
+        }
+        catch (e) {
+            setIsSubmitting(false);
+        }
+        finally {
+            setIsSubmitting(false);
+        }
 
 
     };
@@ -585,7 +598,7 @@ const BookingForm = () => {
             </div>
 
             <div className="mhhc-submit-wrapper">
-                <button type="button" onClick={handleSubmit}>
+                <button type="button" onClick={handleSubmit} disabled={isSubmitting}>
                     Book nu
                 </button>
             </div>

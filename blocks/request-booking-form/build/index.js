@@ -24,13 +24,12 @@ __webpack_require__.r(__webpack_exports__);
   edit: () => {
     return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
       id: "mhhc_hundepension_form",
-      children: "EDIT"
+      children: "Dog Pension Form"
     });
   },
   save: () => {
     return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
-      id: "mhhc_hundepension_form",
-      children: "FRONTEND"
+      id: "mhhc_hundepension_form"
     });
   }
 });

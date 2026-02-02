@@ -96,6 +96,8 @@ const BookingForm = () => {
   const [priceDog2, setPriceDog2] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(200);
   const [specialPrices, setSpecialPrices] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]); // [{from,to,dog1,dog2}, ...]
 
+  const [isSubmitting, setIsSubmitting] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
+
   /* =========================
      Utils (datoer)
      ========================= */
@@ -309,7 +311,8 @@ const BookingForm = () => {
 
   // Fuldt tjek ved submit (inkl. hunde + checkbox)
   const isEmptyNumber = v => v === '' || v === null || Number.isNaN(Number(v));
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
     setSubmitted(true);
 
     // 1) dato-fejl
@@ -359,8 +362,14 @@ const BookingForm = () => {
     }
 
     // Hvis valid, så udfør booking
-    setMessage('Formularen er klar til at blive sendt! ✅');
-    submitBooking();
+    try {
+      setMessage('Formularen er klar til at blive sendt! ✅');
+      await submitBooking();
+    } catch (e) {
+      setIsSubmitting(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Hjælper til at vise fejl-tekst (datoer = altid live; andre kun efter submit)
@@ -547,6 +556,7 @@ const BookingForm = () => {
       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("button", {
         type: "button",
         onClick: handleSubmit,
+        disabled: isSubmitting,
         children: "Book nu"
       })
     })]
