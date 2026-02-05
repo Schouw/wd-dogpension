@@ -273,6 +273,18 @@ class WDDP_AdminBookingsTable extends \WP_List_Table
             array_push($params, $like, $like, $like, $like);
         }
 
+        //filter date
+        $date_from = isset($_GET['wddp_date_from']) ? sanitize_text_field($_GET['wddp_date_from']) : '';
+        $date_to   = isset($_GET['wddp_date_to']) ? sanitize_text_field($_GET['wddp_date_to']) : '';
+
+        if ($date_from && $date_to) {
+            $where .= " AND NOT (pickup_date < %s OR dropoff_date > %s)";
+            $params[] = $date_from;
+            $params[] = $date_to;
+        }
+
+
+
         // Sortering
         list($orderby, $order) = $this->get_orderby_sql();
 

@@ -4,7 +4,28 @@ class WDDP_EnqueueSetup
 {
     public static function init(){
         add_action('admin_enqueue_scripts', [self::class, 'adminAssets']);
+        add_action('wp_enqueue_scripts', [self::class, 'frontendAssets']);
     }
+
+    public static function frontendAssets(){
+        wp_enqueue_style(
+            'wddp-style',
+            WT_DOG_PENSION_URL. '/assets/css/main.css',
+            [],
+            '1.0',
+            'all'
+        );
+
+
+        wp_enqueue_script(
+            'wddp-frontend-js',
+            WT_DOG_PENSION_URL . '/assets/js/main.js',
+            ['jquery'],
+            '1.0',
+            true
+        );
+    }
+
 
     //TODO : Kun for indstillingsside - bruges til woocommerce produkt valg
     //TODO : Flyt assets js til egen fil

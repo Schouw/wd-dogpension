@@ -1,0 +1,20 @@
+/* box notice */
+.woocommerce-info {
+    background-color: #eaf6ff;
+    border-color: #1e85be;
+}
+
+.wddp-close-notice {
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    line-height: 1;
+    color: #666;
+    cursor: pointer;
+    float: right;
+    margin-left: 1em;
+}
+
+.wddp-close-notice:hover {
+    color: #000;
+}

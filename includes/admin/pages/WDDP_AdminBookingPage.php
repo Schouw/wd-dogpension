@@ -76,7 +76,10 @@ class WDDP_AdminBookingPage extends WDDP_AdminPage {
 
         // Læs aktuel status (for preselect)
         $status_value = isset($_GET['wddp_status']) ? sanitize_key($_GET['wddp_status']) : '';
-        $reset_url = admin_url( 'admin.php?page=wddp-booking' );
+        $date_from = isset($_GET['wddp_date_from']) ? sanitize_text_field($_GET['wddp_date_from']) : '';
+        $date_to   = isset($_GET['wddp_date_to']) ? sanitize_text_field($_GET['wddp_date_to']) : '';
+
+        $reset_url = admin_url( 'admin.php?page=wddp_menu' );
 
         echo '<div class="wrap">';
         echo '<h1 class="wp-heading-inline">Bookinger</h1>';
@@ -95,7 +98,7 @@ class WDDP_AdminBookingPage extends WDDP_AdminPage {
         }
 
         echo '<form method="get">';
-        echo '<input type="hidden" name="page" value="wddp-hundepension" />';
+        echo '<input type="hidden" name="page" value="wddp_menu" />';
 
         echo '<div class="tablenav top"><div class="alignleft actions">';
 
@@ -110,6 +113,10 @@ class WDDP_AdminBookingPage extends WDDP_AdminPage {
             );
         }
         echo '</select>';
+
+        echo '<input type="date" name="wddp_date_from" value="' . esc_attr($date_from) . '" />';
+        echo '<input type="date" name="wddp_date_to" value="' . esc_attr($date_to) . '" />';
+
 
         submit_button( __( 'Filtrér', 'wddp-hundepension' ), 'secondary', '', false );
         echo ' <a href="' . esc_url( $reset_url ) . '" class="button">' . esc_html__('Nulstil', 'wddp-hundepension') . '</a>';

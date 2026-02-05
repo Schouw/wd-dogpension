@@ -15,10 +15,62 @@ class WDDP_WooCommerceSetup
         add_filter('woocommerce_email_enabled_customer_on_hold_order', [static::class, 'maybeSuppressCustomerMail'], 10, 2);
         add_filter('woocommerce_email_enabled_customer_invoice', [static::class, 'maybeSuppressCustomerMail'], 10, 2);
 
-        // Undgå mail til admin (valgfrit)
+        // Undgå mail til admin
         add_filter('woocommerce_email_enabled_new_order', [static::class, 'maybeSuppressCustomerMail'], 10, 2);
 
+        // box på kurv og kasse
+        add_action('template_redirect', [static::class, 'maybeInjectBookingNoticeEarly']);
+
     }
+
+
+    public static function maybeInjectBookingNoticeEarly() {
+        if (is_cart() || is_checkout()) {
+            wc_print_notice(
+                '<strong>Bemærk ved booking:</strong> Din booking er endnu ikke garanteret – den skal først godkendes. Vi hæver ikke beløbet før godkendelse.
+     <button type="button" class="wddp-close-notice" aria-label="Luk besked" style="float:right;">×</button>',
+                'notice'
+            );
+
+        }
+    }
+
+    public static function maybeShowBookingNotice() {
+        error_log("hasBookingProduct ". self::$hasBookingProduct);
+        if (! self::$hasBookingProduct) return;
+
+        wc_print_notice(
+            '<strong>Bemærk ved booking:</strong> Din booking er endnu ikke garanteret – den skal først godkendes. Vi hæver ikke beløbet før godkendelse.',
+            'notice'
+        );
+    }
+
+
+    public static function showBookingNoticeIfNeeded() {
+        error_log("inside showBookingNoticeIfNeeded");
+        // Hent booking-produkt fra dine indstillinger
+        $settings = WDDP_Options::get(WDDP_Options::OPTION_WC);
+        $booking_product_id = intval($settings['product_id'] ?? 0);
+        if (! $booking_product_id) return;
+
+        // Tjek om produktet er i kurven
+        $found = false;
+        foreach (WC()->cart->get_cart() as $item) {
+            if ((int) $item['product_id'] === $booking_product_id) {
+                $found = true;
+                break;
+            }
+        }
+
+        // Hvis fundet, vis besked
+        if ($found) {
+            wc_print_notice(
+                '<strong>Bemærk ved booking:</strong> Din booking er endnu ikke garanteret – den skal først godkendes. Vi hæver ikke beløbet før godkendelse.',
+                'notice'
+            );
+        }
+    }
+
 
     public static function maybeSuppressCustomerMail($enabled, $order) {
         if (! $order instanceof WC_Order) return $enabled;
