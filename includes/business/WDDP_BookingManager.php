@@ -4,7 +4,53 @@ class WDDP_BookingManager
 {
 
 
-    public static function create($data, $opts){
+    public static function create(array $data, array $opts = []): int {
+        global $wpdb;
+
+        $table = $wpdb->prefix . WDDP_DatabaseSetup::WDDP_DATABASE_NAME;
+
+        $dog_names = array_column($data['dogs'], 'name');
+
+        $wpdb->insert($table, [
+            'order_id'      => null, // oprettes manuelt – ingen Woo ordre
+            'status'        => WDDP_StatusHelper::APPROVED,
+            'first_name'    => $data['first_name'],
+            'last_name'     => $data['last_name'],
+            'email'         => $data['email'],
+            'phone'         => $data['phone'],
+            'address'       => $data['address'],
+            'postal_code'   => $data['postal_code'],
+            'city'          => $data['city'],
+            'dropoff_date'  => $data['dropoff_date'],
+            'pickup_date'   => $data['pickup_date'],
+            'dropoff_time'  => $data['dropoff_time'],
+            'pickup_time'   => $data['pickup_time'],
+            'dog_names'     => maybe_serialize($dog_names),
+            'dog_data'      => maybe_serialize($data['dogs']),
+            'price'         => floatval($data['override_price'] ? $data['price'] : WDDP_BookingManager::calculatePrice($data['dropoff_date'], $data['pickup_date'], count($data['dogs']))),
+            'notes'         => $data['notes'],
+        ]);
+
+        $booking_id = $wpdb->insert_id;
+
+        // Valgfrit: send godkendelsesmail
+        if (!empty($opts['send_approved_mail'])) {
+            $booking = new WDDP_Booking($booking_id);
+
+            $placeholders = WDDP_WooCommerceManager::buildPlaceholdersFromOrder(new WC_Order(), [
+                'from_date'      => $data['dropoff_date'],
+                'to_date'        => $data['pickup_date'],
+                'arrival_time'   => $data['dropoff_time'],
+                'departure_time' => $data['pickup_time'],
+                'dog_names'      => $dog_names,
+                'notes'          => $data['notes'],
+            ]);
+
+            $mail = WDDP_MailManager::buildMail(WDDP_Mail::MAIL_APPROVED, $placeholders);
+            $mail->send($data['email']);
+        }
+
+        return $booking_id;
     }
 
     /** Slet booking */

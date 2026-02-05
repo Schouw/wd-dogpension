@@ -83,7 +83,6 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
             echo '<div class="notice notice-error"><p>Ugyldigt booking-ID.</p></div>';
             return;
         }
-
         $max_dogs = WDDP_Options::get(WDDP_Options::OPTION_MAX_NO_DOGS, WDDP_Options::default_max_no_of_dogs());
 
 
@@ -92,6 +91,18 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
             echo '<div class="notice notice-error"><p>Bookingen blev ikke fundet.</p></div>';
             return;
         }
+
+        $errors = get_transient('wddp_edit_booking_errors_' . $booking_id);
+        if ($errors) {
+            delete_transient('wddp_edit_booking_errors_' . $booking_id);
+
+            echo '<div class="notice notice-error"><ul>';
+            foreach ($errors as $error) {
+                echo '<li>' . esc_html($error) . '</li>';
+            }
+            echo '</ul></div>';
+        }
+
 
         $status = $booking->getStatus();
         $order_id = $booking->getOrderId();
@@ -286,6 +297,40 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
 
         $dog_names = array_column($dogs, 'name');
         $dog_count = count($dogs);
+
+        $validation_data = [
+            // Kundeoplysninger (fra eksisterende booking)
+            'first_name'  => $booking->getFirstName(),
+            'last_name'   => $booking->getLastName(),
+            'email'       => $booking->getEmail(),
+            'phone'       => $booking->getPhone(),
+            'address'     => $booking->getAddress(),
+            'postal_code' => $booking->getPostalCode(),
+            'city'        => $booking->getCity(),
+
+            // Booking (fra formular)
+            'dropoff_date' => $from,
+            'pickup_date'  => $to,
+            'dropoff_time' => $arrival,
+            'pickup_time'  => $departure,
+
+            // Hunde
+            'dogs' => $dogs,
+
+            // Noter (valgfri)
+            'notes' => $notes,
+        ];
+
+        $errors = WDDP_BookingValidator::validateWithCustomer($validation_data);
+
+        if (!empty($errors)) {
+            // Gem fejl midlertidigt (samme mønster som create)
+            set_transient('wddp_edit_booking_errors_' . $booking_id, $errors, 60);
+
+            wp_redirect(add_query_arg('msg', 'validation_error', wp_get_referer()));
+            exit;
+        }
+
 
         // ---------- Beregn pris ----------
         $use_manual = !empty($_POST['manual_price_enable']);

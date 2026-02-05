@@ -68,14 +68,6 @@ class WDDP_AdminBookingPage extends WDDP_AdminPage {
             require_once WT_DOG_PENSION_PATH . 'includes/admin/pages/WDDP_AdminBookingsTable.php';
         }
 
-        // Admin notice
-        if ( isset($_GET['wddp_notice']) ) {
-            $type = sanitize_key($_GET['wddp_notice']);
-            echo '<div class="notice ' . ( $type === 'error' ? 'notice-error' : 'notice-success' ) . ' is-dismissible"><p>';
-            echo ( $type === 'deleted' ) ? 'Booking slettet.' : ( $type === 'updated' ? 'Booking opdateret.' : 'Der opstod en fejl.' );
-            echo '</p></div>';
-        }
-
         $table = new WDDP_AdminBookingsTable();
         $table->prepare_items();
 

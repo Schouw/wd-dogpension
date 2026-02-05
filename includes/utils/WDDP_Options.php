@@ -16,6 +16,10 @@ class WDDP_Options
         return ($val === null) ? $default : $val;
     }
 
+    public static function defaults_max_no_of_dogs(){
+        return 3;
+    }
+
     public static function defaults_prices(): array
     {
         return [

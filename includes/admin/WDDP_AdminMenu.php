@@ -19,6 +19,7 @@ class WDDP_AdminMenu
         add_action('admin_post_wddp_booking_delete',  [WDDP_AdminBookingPage::class, 'handleBookingDelete']);
         add_action('admin_post_wddp_booking_update_status',  [WDDP_AdminBookingPage::class, 'handleBookingUpdateStatus']);
         add_action('admin_post_wddp_update_booking',  [WDDP_AdminEditBookingPage::class, 'handleBookingUpdate']);
+        add_action('admin_post_wddp_booking_create', [WDDP_AdminCreateBookingPage::class, 'handlePost']);
 
     }
 
@@ -28,6 +29,20 @@ class WDDP_AdminMenu
             return; // kun på egne sider
         }
 
+        if (str_ends_with($hook_suffix,'wddp_menu-create-booking')) {
+            wp_enqueue_script(
+                'wddp-admin-booking-create',
+                WT_DOG_PENSION_URL . 'assets/js/admin-booking-create.js',
+                [],
+                WT_DOG_PENSION_VERSION,
+                true
+            );
+            wp_localize_script('wddp-admin-booking-create', 'wddpPriceCalc', [
+                'api_url' => rest_url('/wddp_api/calculatePrice'),
+                'nonce'   => wp_create_nonce('wp_rest'),
+            ]);
+        }
+
         if (str_ends_with($hook_suffix,'wddp_menu-edit-booking')) {
             wp_enqueue_script('wddp-admin-booking-edit', WT_DOG_PENSION_URL . 'assets/js/admin-booking-edit.js', [], WT_DOG_PENSION_VERSION, true);
             wp_localize_script('wddp-admin-booking-edit', 'wddpPriceCalc', [
@@ -35,6 +50,9 @@ class WDDP_AdminMenu
                 'nonce'   => wp_create_nonce('wp_rest'),
             ]);
         }
+
+
+
         if (str_ends_with($hook_suffix,'wddp_menu')) {
             wp_enqueue_script('wddp-admin', WT_DOG_PENSION_URL . 'assets/js/admin-bookings.js', [], WT_DOG_PENSION_VERSION, true);
         }

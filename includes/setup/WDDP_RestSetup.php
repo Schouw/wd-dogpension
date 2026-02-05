@@ -87,6 +87,23 @@ class WDDP_RestSetup
         $dogs       = $data['dogs'] ?? [];
         $price = floatval($data['price'] ?? 0);
 
+        // 1a. validate
+        // Normaliser data til validator-format
+        $validatedData = [
+            'dropoff_date'   => sanitize_text_field($data['from_date'] ?? ''),
+            'pickup_date'    => sanitize_text_field($data['to_date'] ?? ''),
+            'dropoff_time'   => sanitize_text_field($data['arrival_time'] ?? ''),
+            'pickup_time'    => sanitize_text_field($data['departure_time'] ?? ''),
+            'dogs'           => $data['dogs'] ?? [],
+        ];
+
+        $errors = WDDP_BookingValidator::validateCore($validatedData);
+
+        if (!empty($errors)) {
+            error_log(print_r($errors, true));
+            return new \WP_Error('booking_invalid', implode(' ', $errors), ['status' => 400]);
+        }
+
         // 2. Hent indstillinger
         $wc_opts = WDDP_Options::get(WDDP_Options::OPTION_WC, WDDP_Options::defaults_wc());
         $product_id = intval($wc_opts['product_id'] ?? 0);

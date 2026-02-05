@@ -17,6 +17,8 @@ require_once WT_DOG_PENSION_PATH . 'includes/business/WDDP_BookingManager.php';
 require_once WT_DOG_PENSION_PATH . 'includes/business/WDDP_WooCommerceManager.php';
 require_once WT_DOG_PENSION_PATH . 'includes/business/WDDP_MailManager.php';
 
+require_once WT_DOG_PENSION_PATH . 'includes/logic/WDDP_BookingValidator.php';
+
 require_once WT_DOG_PENSION_PATH . 'includes/model/WDDP_Booking.php';
 require_once WT_DOG_PENSION_PATH . 'includes/model/WDDP_Mail.php';
 

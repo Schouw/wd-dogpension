@@ -199,5 +199,70 @@ class WDDP_WooCommerceManager
         return $item_data;
     }
 
+    public static function createOrderFromBookingData(array $data): ?int {
+        $wc_opts = WDDP_Options::get(WDDP_Options::OPTION_WC, []);
+        $product_id = intval($wc_opts['product_id'] ?? 0);
+        if (!$product_id) return null;
+
+        $order = wc_create_order();
+
+        $meta = [
+            'from_date'      => $data['dropoff_date'],
+            'to_date'        => $data['pickup_date'],
+            'arrival_time'   => $data['dropoff_time'],
+            'departure_time' => $data['pickup_time'],
+            'dogs'           => $data['dogs'],
+            'notes'          => $data['notes'],
+            'calculated_price' => floatval($data['override_price'] ? $data['price'] : WDDP_BookingManager::calculatePrice($data['dropoff_date'], $data['pickup_date'], count($data['dogs']))),
+        ];
+
+        $product = wc_get_product($product_id);
+        $item = new WC_Order_Item_Product();
+        $item->set_product($product);
+        $item->set_quantity(1);
+        $item->set_total($meta['calculated_price']);
+
+        // Tilføj alle de samme metafelter som i createOrderLine():
+        $item->add_meta_data('Booking info', 'Se nedenfor');
+        $item->add_meta_data('Datoer', $meta['from_date'] . ' → ' . $meta['to_date']);
+        $item->add_meta_data('Tider', 'Aflevering: ' . $meta['arrival_time'] . ' / Afhentning: ' . $meta['departure_time']);
+
+        foreach ($meta['dogs'] as $i => $dog) {
+            $item->add_meta_data('Hund ' . ($i + 1), sprintf(
+                '%s (%s), %s, %s kg',
+                $dog['name'] ?? '-', $dog['breed'] ?? '-', $dog['age'] ?? '-', $dog['weight'] ?? '-'
+            ));
+
+            if (!empty($dog['notes'])) {
+                $item->add_meta_data('Noter – ' . $dog['name'], $dog['notes']);
+            }
+        }
+
+        // Raw meta til internt brug
+        $item->add_meta_data('_wddp_booking_data', $meta, true);
+
+        $order->add_item($item);
+
+        foreach ($order->get_items() as $item) {
+            $item->add_meta_data('_wddp_booking_data', $meta, true);
+        }
+
+        $order->set_address([
+            'first_name' => $data['first_name'],
+            'last_name'  => $data['last_name'],
+            'email'      => $data['email'],
+            'phone'      => $data['phone'],
+            'address_1'  => $data['address'],
+            'postcode'   => $data['postal_code'],
+            'city'       => $data['city'],
+        ], 'billing');
+
+        $order->calculate_totals();
+        remove_all_actions('woocommerce_order_status_on_hold_notification'); // undgå Woo-mail
+        $order->update_status('on-hold');
+        return $order->get_id();
+    }
+
+
 
 }
