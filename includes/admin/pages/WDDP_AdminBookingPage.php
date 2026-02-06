@@ -160,6 +160,16 @@ class WDDP_AdminBookingPage extends WDDP_AdminPage {
 <div id="wddp-change-modal-overlay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
      background: rgba(0,0,0,0.3); z-index: 9998;"></div>';
 
+        echo '
+<div id="wddp-note-modal" style="display:none; position:fixed; z-index:9999; top:20%; left:50%; transform:translateX(-50%);
+    background:#fff; padding:20px; max-width:500px; width:90%; border:1px solid #ccc; box-shadow:0 0 20px rgba(0,0,0,0.2);">
+    <button id="wddp-note-close" style="float:right; background:none; border:none; font-size:20px;">&times;</button>
+    <div id="wddp-note-content" style="margin-top:10px;"></div>
+</div>
+<div id="wddp-note-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.3); z-index:9998;"></div>';
+
+
 
     }
 

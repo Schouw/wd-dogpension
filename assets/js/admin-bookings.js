@@ -31,6 +31,20 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+jQuery(function($){
+    $(document).on('click', '.wddp-show-note', function(e){
+        e.preventDefault();
+        const note = $(this).data('note');
+        $('#wddp-note-content').text(note);
+        $('#wddp-note-modal, #wddp-note-overlay').fadeIn(200);
+    });
+
+    $('#wddp-note-close, #wddp-note-overlay').on('click', function(){
+        $('#wddp-note-modal, #wddp-note-overlay').fadeOut(200);
+    });
+});
+
+
 document.addEventListener("DOMContentLoaded", function(){
     const modal = document.getElementById("wddp-change-modal");
     const overlay = document.getElementById("wddp-change-modal-overlay");

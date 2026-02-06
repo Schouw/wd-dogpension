@@ -65,9 +65,20 @@ class WDDP_AdminBookingsTable extends \WP_List_Table
         $name = trim($item->getCustomerName());
         $email = trim($item->getEmail());
         $phone = trim($item->getPhone());
+        $note  = trim($item->getNotes());
 
 
-        $out = '<strong>' . esc_html($name ?: '—') . '</strong>';
+        $out = '';
+
+
+        if (!empty($note)) {
+            $escaped_note = esc_attr($note);
+            $out .= ' <a href="#" class="wddp-show-note" title="Vis note" data-note="' . $escaped_note . '">
+                    <span class="dashicons dashicons-media-text" style="vertical-align:middle;"></span>
+                 </a>';
+        }
+
+        $out .= '<strong>' . esc_html($name ?: '—') . '</strong>';
 
         if ($email !== '') {
             $out .= '<div class="sub">E-mail: <a href="mailto:' . esc_attr($email) . '">' . esc_html($email) . '</a></div>';
@@ -77,6 +88,8 @@ class WDDP_AdminBookingsTable extends \WP_List_Table
             $href = preg_replace('/\s+/', '', $phone);
             $out .= '<div class="sub">Telefon: <a href="tel:' . esc_attr($href) . '">' . esc_html($phone) . '</a></div>';
         }
+
+
 
         return $out;
     }
