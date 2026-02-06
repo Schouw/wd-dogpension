@@ -215,6 +215,7 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
 
 
 
+
         $max_dogs = WDDP_Options::get(WDDP_Options::OPTION_MAX_NO_DOGS, WDDP_Options::default_max_no_of_dogs());
 
 
@@ -228,6 +229,15 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
             }
             echo '</ul></div>';
         }
+
+
+        $notice = get_transient('wddp_edit_booking_notice_' . $booking_id);
+        if ($notice === 'ingen_ændringer') {
+            delete_transient('wddp_edit_booking_notice_' . $booking_id);
+
+            echo '<div class="notice notice-info is-dismissible"><p>Ingen ændringer blev fundet. Bookingen blev ikke opdateret.</p></div>';
+        }
+
 
 
         $status = $booking->getStatus();
@@ -509,6 +519,16 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
         ];
 
         $changes = self::calculateBookingChanges($booking, $new_data);
+
+        if (empty($changes)) {
+            // Gem en lille besked i transient til visning i renderPage()
+            set_transient('wddp_edit_booking_notice_' . $booking_id, 'ingen_ændringer', 60);
+
+            // Redirect tilbage til samme side
+            wp_redirect(wp_get_referer());
+            exit;
+        }
+
 
         self::recordBookingChanges($booking, $changes);
 
