@@ -267,6 +267,7 @@ class WDDP_AdminBookingsTable extends \WP_List_Table
         switch ($status) {
             case WDDP_StatusHelper::PENDING_REVIEW:
                 // Godkend, Afvis, Slet
+                $out .= $btn(__('Ændr', 'wd-dog-pension'), 'button') . ' ';
                 $out .= $btn(__('Godkend', 'wd-dog-pension'), 'button-primary', 'approve') . ' ';
                 $out .= $btn(__('Afvis', 'wd-dog-pension'), 'button', 'reject') . ' ';
                 $out .= $btn(__('Slet', 'wd-dog-pension'), 'button-link-delete', 'delete');

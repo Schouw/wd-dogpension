@@ -237,17 +237,23 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
                 $orderstatus = $order->get_status(); // fx 'on-hold', 'processing', 'completed', 'pending'
 
                 // Tillad kun redigering hvis ordren ikke er betalt/håndteret
-                if (in_array($orderstatus, ['pending', 'on-hold'], true)) {
+                error_log($orderstatus);
+                if (in_array($orderstatus, ['pending', 'on-hold', 'processing'], true)) {
                     $can_edit = true;
                 } else {
                     $can_edit = false;
                 }
+
             }
         }
 
 
         if (! $can_edit) {
-            echo '<div class="notice notice-warning"><p>Bookingens status er <strong>' . esc_html($status) . '</strong> og kan derfor ikke redigeres.</p></div>';
+            $reason = 'Bookingens status er <strong>' . esc_html($status) . '</strong>';
+            if ($order_id && $order) {
+                $reason .= ' og WooCommerce-ordrens status er <strong>' . esc_html($orderstatus) . '</strong>';
+            }
+            echo '<div class="notice notice-warning"><p>' . $reason . ', så den kan ikke redigeres.</p></div>';
         }
 
 
@@ -389,7 +395,7 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
 
         if ($order_id) {
             $order = wc_get_order($order_id);
-            if ($order && ! in_array($order->get_status(), ['pending', 'on-hold'], true)) {
+            if ($order && ! in_array($order->get_status(), ['pending', 'on-hold', 'processing'], true)) {
                 $can_edit = false;
             }
         }
