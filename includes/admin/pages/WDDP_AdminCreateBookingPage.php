@@ -32,7 +32,7 @@ class WDDP_AdminCreateBookingPage extends WDDP_AdminPage
 
         $opts = [
                 'send_approved_mail' => !empty($in['send_approved_mail']),
-                'create_woo_order'   => !empty($in['create_woo_order']),
+                'create_woo_order'   => true // TODO: Gør Woo ordre valgfrit igen senere
         ];
 
         $validation_errors = WDDP_BookingValidator::validateWithCustomer($data);
@@ -197,10 +197,8 @@ class WDDP_AdminCreateBookingPage extends WDDP_AdminPage
         echo '<label><input type="checkbox" name="send_approved_mail" value="1"> Send godkendelsesmail nu</label>';
         echo '</td></tr>';
 
-        echo '<tr><th>Woo ordre</th><td>';
-        echo '<label><input type="checkbox" name="create_woo_order" value="1"> Opret WooCommerce-ordre samtidig</label>';
-        echo '</td></tr>';
-
+        // TODO: Gør Woo ordre valgfrit igen senere
+        echo '<input type="hidden" name="create_woo_order" value="1">';
 
         self::endTable();
     }

@@ -94,6 +94,23 @@ class WDDP_AdminBookingsTable extends \WP_List_Table
         return $out;
     }
 
+    private function format_change_value($val) {
+        if (is_array($val)) {
+            $out = '<ul>';
+            foreach ($val as $k => $v) {
+                if (is_array($v)) {
+                    $out .= '<li>' . esc_html($k) . ': ' . $this->format_change_value($v) . '</li>';
+                } else {
+                    $out .= '<li>' . esc_html($k) . ': ' . esc_html($v) . '</li>';
+                }
+            }
+            $out .= '</ul>';
+            return $out;
+        }
+        return esc_html((string)$val);
+    }
+
+
     public function column_dates($item)
     {
         $from = $this->fmt_date($item->getBookingDateFrom() ?? '');
@@ -128,8 +145,13 @@ class WDDP_AdminBookingsTable extends \WP_List_Table
             $content .= '<strong>' . esc_html($entry['changed_at']) . '</strong> – ' . esc_html($entry['user']) . '<br>';
             $content .= '<ul style="margin:0; padding-left:20px;">';
             foreach ($entry['changes'] as $field => $change) {
-                $from = is_array($change['from']) ? json_encode($change['from']) : $change['from'];
-                $to = is_array($change['to']) ? json_encode($change['to']) : $change['to'];
+                if ($field === 'dog_data') {
+                    $from = $this->formatDogChange($change['from']);
+                    $to   = $this->formatDogChange($change['to']);
+                } else {
+                    $from = esc_html((string)$change['from']);
+                    $to   = esc_html((string)$change['to']);
+                }
                 $content .= '<li><strong>' . esc_html($field) . '</strong>: <em>' . esc_html($from) . '</em> → <strong>' . esc_html($to) . '</strong></li>';
             }
             $content .= '</ul></div>';
@@ -142,6 +164,28 @@ class WDDP_AdminBookingsTable extends \WP_List_Table
             '<a href="#" class="wddp-show-history" data-content="%s" title="Se ændringshistorik"><span class="dashicons dashicons-update"></span></a>',
             $escaped_content
         );
+    }
+
+    private function formatDogChange(array $dogs): string
+    {
+        $out = '';
+
+        foreach ($dogs as $i => $dog) {
+            $out .= '<div style="margin-bottom:10px;">';
+            $out .= '<strong>Hund ' . ($i + 1) . '</strong>';
+            $out .= '<ul style="margin:5px 0 0 15px;">';
+
+            foreach ($dog as $key => $value) {
+                if ($value === '') continue;
+
+                $label = ucfirst($key);
+                $out .= '<li><strong>' . esc_html($label) . ':</strong> ' . esc_html($value) . '</li>';
+            }
+
+            $out .= '</ul></div>';
+        }
+
+        return $out ?: '—';
     }
 
 

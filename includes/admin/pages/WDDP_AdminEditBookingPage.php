@@ -15,8 +15,8 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
             'arrival_time'   => $booking->getBookingDeliveryTime(),
             'departure_time' => $booking->getBookingPickUpTime(),
             'dog_data'       => maybe_unserialize($booking->getDogData()),
-            'price'          => $booking->getPrice(),
-            'notes'          => $booking->getNotes(),
+            'price'          => (float) $booking->getPrice(),
+            'notes'          => (string) $booking->getNotes(),
         ];
 
         $changes = [];
@@ -24,19 +24,64 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
         foreach ($new_data as $key => $new_val) {
             $old_val = $old_data[$key] ?? null;
 
-            if (is_array($new_val) || is_array($old_val)) {
-                if (json_encode($new_val) !== json_encode($old_val)) {
-                    $changes[$key] = ['from' => $old_val, 'to' => $new_val];
+            // 🐶 Specialhåndtering af hunde
+            if ($key === 'dog_data') {
+                $old_norm = self::normalizeDogs($old_val);
+                $new_norm = self::normalizeDogs($new_val);
+
+                if ($old_norm != $new_norm) {
+                    $changes[$key] = [
+                        'from' => $old_norm,
+                        'to'   => $new_norm,
+                    ];
                 }
-            } else {
-                if ((string)$new_val !== (string)$old_val) {
-                    $changes[$key] = ['from' => $old_val, 'to' => $new_val];
+                continue;
+            }
+
+            // 📦 Arrays (andre end hunde)
+            if (is_array($new_val) && is_array($old_val)) {
+                if ($new_val != $old_val) {
+                    $changes[$key] = [
+                        'from' => $old_val,
+                        'to'   => $new_val,
+                    ];
                 }
+                continue;
+            }
+
+            // ✏️ Simple værdier
+            if ((string) $new_val !== (string) $old_val) {
+                $changes[$key] = [
+                    'from' => $old_val,
+                    'to'   => $new_val,
+                ];
             }
         }
 
         return $changes;
     }
+
+    private static function normalizeDogs($dogs): array
+    {
+        if (!is_array($dogs)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($dogs as $dog) {
+            $normalized[] = [
+                'name'   => trim((string)($dog['name'] ?? '')),
+                'breed'  => trim((string)($dog['breed'] ?? '')),
+                'age'    => trim((string)($dog['age'] ?? '')),
+                'weight' => trim((string)($dog['weight'] ?? '')),
+                'notes'  => trim((string)($dog['notes'] ?? '')),
+            ];
+        }
+
+        return $normalized;
+    }
+
 
     public static function recordBookingChanges(WDDP_Booking $booking, array $changes): void
     {
@@ -63,6 +108,78 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
         ], ['id' => $booking->getId()]);
     }
 
+    /**
+     * @param $order
+     * @param $from
+     * @param $to
+     * @param $arrival
+     * @param $departure
+     * @param array $dogs
+     * @param array $dog_names
+     * @param $notes
+     * @param float $final_price
+     * @param mixed $dog
+     * @return void
+     */
+    public static function opdaterWooCommerceOrdre($order, $from, $to, $arrival, $departure, array $dogs, array $dog_names, $notes, float $final_price, mixed $dog): void
+    {
+// ---------- Opdater WooCommerce ordre ----------
+        $settings = WDDP_Options::get(WDDP_Options::OPTION_WC);
+        $booking_product_id = intval($settings['product_id'] ?? 0);
+
+        foreach ($order->get_items() as $item_id => $item) {
+            if ((int)$item->get_product_id() !== $booking_product_id) {
+                continue; // spring over hvis det ikke er booking-produktet
+            }
+
+            $item->update_meta_data('_wddp_booking_data', [
+                'from_date' => $from,
+                'to_date' => $to,
+                'arrival_time' => $arrival,
+                'departure_time' => $departure,
+                'dogs' => $dogs,
+                'dog_names' => $dog_names,
+                'notes' => $notes,
+            ]);
+
+            // 💰 Opdater pris for denne vare
+            $item->set_total($final_price);
+            $item->set_subtotal($final_price);
+
+            //update display
+            $display_meta = WDDP_WooCommerceManager::getBookingDisplayMeta([
+                'from_date' => $from,
+                'to_date' => $to,
+                'arrival_time' => $arrival,
+                'departure_time' => $departure,
+                'dogs' => $dogs,
+            ]);
+
+            // Ryd gamle visninger først, så der ikke er duplikater
+            $item->delete_meta_data('Datoer');
+            $item->delete_meta_data('Tider');
+            foreach ($dogs as $i => $dog) {
+                $item->delete_meta_data('Hund ' . ($i + 1));
+                if (!empty($dog['notes'])) {
+                    $item->delete_meta_data('Noter – ' . $dog['name']);
+                }
+            }
+
+            // Tilføj visningsdata igen
+            foreach ($display_meta as $row) {
+                $item->update_meta_data($row['name'], $row['value']);
+            }
+
+
+            $item->save();
+        }
+
+        // 💰 Opdater totals på hele ordren
+        $order->calculate_totals();
+        $order->save();
+
+        $order->add_order_note('Booking ændret via admin.');
+    }
 
 
     public function getSlug() {
@@ -183,7 +300,7 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
         echo '</select></td></tr>';
         echo '</tbody></table>';
 
-// Sektion: Kundeoplysninger
+        // Sektion: Kundeoplysninger
         echo '<h2>Kundeoplysninger</h2>';
         echo '<table class="form-table"><tbody>';
         echo '<tr><th>Navn</th><td>' . esc_html($booking->getCustomerName()) . '</td></tr>';
@@ -191,7 +308,13 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
         echo '<tr><th>Telefon</th><td>' . esc_html($booking->getPhone()) . '</td></tr>';
         echo '</tbody></table>';
 
-// Sektion: Hunde
+
+        // 📝 Sektion: Noter (generelle noter til bookingen)
+        echo '<h2>Noter</h2>';
+        echo '<p><label for="notes">Evt. interne noter:</label><br>';
+        echo '<textarea name="notes" id="notes" rows="5" style="width:100%;">' . esc_textarea($notes) . '</textarea></p>';
+
+        // Sektion: Hunde
         echo '<h2>Hund(e)</h2>';
         echo '<div id="wddp-dog-fields">';
         foreach ($dogs as $i => $dog) {
@@ -259,6 +382,7 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
             exit;
         }
 
+        $order = null;
         $status = $booking->getStatus();
         $order_id = $booking->getOrderId();
         $can_edit = in_array($status, [WDDP_StatusHelper::PENDING_REVIEW, WDDP_StatusHelper::APPROVED], true);
@@ -373,63 +497,8 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
 
         self::recordBookingChanges($booking, $changes);
 
-
-        // ---------- Opdater WooCommerce ordre ----------
-        $settings = WDDP_Options::get(WDDP_Options::OPTION_WC);
-        $booking_product_id = intval($settings['product_id'] ?? 0);
-
-        foreach ($order->get_items() as $item_id => $item) {
-            if ((int) $item->get_product_id() !== $booking_product_id) {
-                continue; // spring over hvis det ikke er booking-produktet
-            }
-
-            $item->update_meta_data('_wddp_booking_data', [
-                'from_date'      => $from,
-                'to_date'        => $to,
-                'arrival_time'   => $arrival,
-                'departure_time' => $departure,
-                'dogs'           => $dogs,
-                'dog_names'      => $dog_names,
-                'notes'          => $notes,
-            ]);
-
-            // 💰 Opdater pris for denne vare
-            $item->set_total($final_price);
-            $item->set_subtotal($final_price);
-
-            //update display
-            $display_meta = WDDP_WooCommerceManager::getBookingDisplayMeta([
-                'from_date'      => $from,
-                'to_date'        => $to,
-                'arrival_time'   => $arrival,
-                'departure_time' => $departure,
-                'dogs'           => $dogs,
-            ]);
-
-            // Ryd gamle visninger først, så der ikke er duplikater
-            $item->delete_meta_data('Datoer');
-            $item->delete_meta_data('Tider');
-            foreach ($dogs as $i => $dog) {
-                $item->delete_meta_data('Hund ' . ($i + 1));
-                if (!empty($dog['notes'])) {
-                    $item->delete_meta_data('Noter – ' . $dog['name']);
-                }
-            }
-
-            // Tilføj visningsdata igen
-            foreach ($display_meta as $row) {
-                $item->update_meta_data($row['name'], $row['value']);
-            }
-
-
-            $item->save();
-        }
-
-        // 💰 Opdater totals på hele ordren
-        $order->calculate_totals();
-        $order->save();
-
-        $order->add_order_note('Booking ændret via admin.');
+        if($order)
+            self::opdaterWooCommerceOrdre($order, $from, $to, $arrival, $departure, $dogs, $dog_names, $notes, $final_price, $dog);
 
         // ---------- Send ændringsmail ----------
         $changeLogHtml = '';
