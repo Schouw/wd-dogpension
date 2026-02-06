@@ -191,7 +191,7 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
     }
 
     public function getParentSlug() {
-        return 'wddp_menu';
+        return  null;
     }
 
     public function renderPage() {
@@ -528,15 +528,21 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
                     $from = WDDP_DateHelper::to_display($change['from']);
                     $to   = WDDP_DateHelper::to_display($change['to']);
                 } elseif ($key === 'dog_data') {
+                    // Kun "før"-visning for hunde
                     $from = self::formatDogChangeMail($change['from'], $change['to']);
                     $to = '';
                 } else {
-                    $from = $change['from'];
-                    $to   = $change['to'];
+                    $from = esc_html((string)$change['from']);
+                    $to   = esc_html((string)$change['to']);
                 }
 
-                $changeLogHtml .= "<li><strong>{$label}:</strong><br>{$from}</li>";
+                if ($key === 'dog_data') {
+                    $changeLogHtml .= "<li><strong>{$label}:</strong><br>{$from}</li>";
+                } else {
+                    $changeLogHtml .= "<li><strong>{$label}:</strong><br>{$from} → {$to}</li>";
+                }
             }
+
             $changeLogHtml .= "</ul>";
         }
 
