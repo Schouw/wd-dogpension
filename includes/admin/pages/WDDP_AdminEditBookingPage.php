@@ -197,17 +197,26 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
     public function renderPage() {
         $booking_id = isset($_GET['edit']) ? absint($_GET['edit']) : 0;
         if (! $booking_id) {
-            echo '<div class="notice notice-error"><p>Ugyldigt booking-ID.</p></div>';
+            echo '<div class="notice notice-error"><p><strong>Ingen booking valgt.</strong><br>Du skal vælge en gyldig booking for at redigere.</p>';
+            echo '<p><a href="' . admin_url('admin.php?page=wddp_menu') . '" class="button">Tilbage til oversigten</a></p></div>';
             return;
         }
+
+
+        try {
+            $booking = new WDDP_Booking($booking_id);
+        }
+        catch (Exception $e) {
+            echo '<div class="notice notice-error"><p><strong>Booking ikke fundet.</strong><br>En booking med ID <code>' . esc_html($booking_id) . '</code> eksisterer ikke. Den kan være slettet.</p>';
+            echo '<p><a href="' . admin_url('admin.php?page=wddp_menu') . '" class="button">Tilbage til oversigten</a></p></div>';
+            return;
+        }
+        $booking = new WDDP_Booking($booking_id);
+
+
+
         $max_dogs = WDDP_Options::get(WDDP_Options::OPTION_MAX_NO_DOGS, WDDP_Options::default_max_no_of_dogs());
 
-
-        $booking = new WDDP_Booking($booking_id);
-        if (! $booking->getId()) {
-            echo '<div class="notice notice-error"><p>Bookingen blev ikke fundet.</p></div>';
-            return;
-        }
 
         $errors = get_transient('wddp_edit_booking_errors_' . $booking_id);
         if ($errors) {
