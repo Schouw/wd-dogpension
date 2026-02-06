@@ -55,10 +55,10 @@ class WDDP_BookingValidator {
         $errors = self::validateCore($data);
 
         // Kundenavn og kontaktoplysninger kræves her
-        if (empty($data['customer_firstname'])) {
+        if (empty($data['first_name'])) {
             $errors[] = 'Fornavn mangler.';
         }
-        if (empty($data['customer_lastname'])) {
+        if (empty($data['last_name'])) {
             $errors[] = 'Efternavn mangler.';
         }
         if (empty($data['email'])) {
@@ -70,7 +70,7 @@ class WDDP_BookingValidator {
         if (empty($data['address'])) {
             $errors[] = 'Adresse mangler.';
         }
-        if (empty($data['postcode'])) {
+        if (empty($data['postal_code'])) {
             $errors[] = 'Postnummer mangler.';
         }
         if (empty($data['city'])) {
