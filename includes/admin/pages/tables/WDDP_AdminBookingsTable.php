@@ -138,13 +138,27 @@ class WDDP_AdminBookingsTable extends \WP_List_Table
 
         $id = $item->getId();
 
+        $label_map = [
+            'from_date' => 'Fra dato',
+            'to_date' => 'Til dato',
+            'arrival_time' => 'Afleveringstid',
+            'departure_time' => 'Afhentningstid',
+            'price' => 'Pris',
+            'notes' => 'Noter',
+            'dog_data' => 'Hund(e)',
+        ];
+
+
         // Byg indhold som HTML string
         $content = '';
         foreach ($log as $entry) {
+            $changedAt = WDDP_DateHelper::to_display($entry['changed_at']);
+
             $content .= '<div style="margin-bottom:1em;">';
-            $content .= '<strong>' . esc_html($entry['changed_at']) . '</strong> – ' . esc_html($entry['user']) . '<br>';
+            $content .= '<strong>' . esc_html($changedAt) . '</strong> – ' . esc_html($entry['user']) . '<br>';
             $content .= '<ul style="margin:0; padding-left:20px;">';
             foreach ($entry['changes'] as $field => $change) {
+                $label = $label_map[$field] ?? ucfirst(str_replace('_', ' ', $field));
                 if ($field === 'dog_data') {
                     $from = $this->formatDogChange($change['from']);
                     $to   = $this->formatDogChange($change['to']);
@@ -152,7 +166,7 @@ class WDDP_AdminBookingsTable extends \WP_List_Table
                     $from = esc_html((string)$change['from']);
                     $to   = esc_html((string)$change['to']);
                 }
-                $content .= '<li><strong>' . esc_html($field) . '</strong>: <em>' . esc_html($from) . '</em> → <strong>' . esc_html($to) . '</strong></li>';
+                $content .= '<li><strong>' . esc_html($label) . '</strong>: <em>' . esc_html($from) . '</em> → <strong>' . esc_html($to) . '</strong></li>';
             }
             $content .= '</ul></div>';
         }

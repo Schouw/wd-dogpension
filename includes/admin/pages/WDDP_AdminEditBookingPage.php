@@ -501,17 +501,39 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
             self::opdaterWooCommerceOrdre($order, $from, $to, $arrival, $departure, $dogs, $dog_names, $notes, $final_price, $dog);
 
         // ---------- Send ændringsmail ----------
+        $label_map = [
+            'from_date' => 'Fra dato',
+            'to_date' => 'Til dato',
+            'arrival_time' => 'Afleveringstid',
+            'departure_time' => 'Afhentningstid',
+            'price' => 'Pris',
+            'notes' => 'Noter',
+            'dog_data' => 'Hund(e)',
+        ];
+
+
         $changeLogHtml = '';
         if (!empty($changes)) {
             $changeLogHtml .= "<ul>";
             foreach ($changes as $key => $change) {
-                $label = ucfirst(str_replace('_', ' ', $key));
-                $from = is_array($change['from']) ? json_encode($change['from']) : $change['from'];
-                $to = is_array($change['to']) ? json_encode($change['to']) : $change['to'];
-                $changeLogHtml .= "<li><strong>{$label}:</strong> {$from} → {$to}</li>";
+                $label = $label_map[$key] ?? ucfirst(str_replace('_', ' ', $key));
+
+                if (in_array($key, ['from_date', 'to_date'])) {
+                    $from = WDDP_DateHelper::to_display($change['from']);
+                    $to   = WDDP_DateHelper::to_display($change['to']);
+                } elseif ($key === 'dog_data') {
+                    $from = self::formatDogChangeMail($change['from'], $change['to']);
+                    $to = '';
+                } else {
+                    $from = $change['from'];
+                    $to   = $change['to'];
+                }
+
+                $changeLogHtml .= "<li><strong>{$label}:</strong><br>{$from}</li>";
             }
             $changeLogHtml .= "</ul>";
         }
+
 
 
         $placeholders = WDDP_WooCommerceManager::buildPlaceholdersFromOrder($order, [
@@ -532,6 +554,30 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
         exit;
 
     }
+
+    public static function formatDogChangeMail(array $from, array $to): string {
+        $out = '';
+
+        foreach ($from as $i => $dogBefore) {
+            $dogAfter = $to[$i] ?? [];
+
+            $changes = [];
+            foreach ($dogBefore as $key => $oldValue) {
+                $newValue = $dogAfter[$key] ?? '';
+                if ((string)$oldValue !== (string)$newValue) {
+                    $label = ucfirst($key); // Eller oversæt fx 'name' → 'Navn'
+                    $changes[] = "<li><strong>{$label}:</strong> {$oldValue} → {$newValue}</li>";
+                }
+            }
+
+            if (!empty($changes)) {
+                $out .= '<p><strong>Hund ' . ($i + 1) . '</strong><ul>' . implode('', $changes) . '</ul></p>';
+            }
+        }
+
+        return $out ?: '—';
+    }
+
 
 
     public function getIcon(){
