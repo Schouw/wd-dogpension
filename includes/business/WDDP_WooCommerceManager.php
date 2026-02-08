@@ -1,6 +1,6 @@
 <?php
 
-    class WDDP_WooCommerceManager
+class WDDP_WooCommerceManager
 {
 
     //TODO: REFACT AND DOC

@@ -10,23 +10,6 @@ class WDDP_BookingManager
 
         // Save the booking in the db
         $booking_id = WDDP_BookingPersistence::createBooking($data, $initstatus);
-
-        // Send approved mail
-        //TODO: Extract in mail system
-        if (!empty($opts['send_approved_mail'])) {
-            $placeholders = WDDP_WooCommerceManager::buildPlaceholdersFromOrder(new WC_Order(), [
-                'from_date'      => $data['dropoff_date'],
-                'to_date'        => $data['pickup_date'],
-                'arrival_time'   => $data['dropoff_time'],
-                'departure_time' => $data['pickup_time'],
-                'dog_names'      => WDDP_DogHelper::extractDogNames($data['dogs']),
-                'notes'          => $data['notes'],
-            ]);
-
-            $mail = WDDP_MailManager::buildMail(WDDP_Mail::MAIL_APPROVED, $placeholders);
-            $mail->send($data['email']);
-        }
-
         return $booking_id;
     }
 

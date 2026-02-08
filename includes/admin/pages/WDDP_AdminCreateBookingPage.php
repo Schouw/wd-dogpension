@@ -65,6 +65,22 @@ class WDDP_AdminCreateBookingPage extends WDDP_AdminPage
                 }
             }
 
+            // 3. Send mail
+            //TODO: Extract in mail system
+            if (!empty($opts['send_approved_mail'])) {
+                $placeholders = WDDP_WooCommerceManager::buildPlaceholdersFromOrder(wc_get_order($order_id), [
+                        'from_date'      => $data['dropoff_date'],
+                        'to_date'        => $data['pickup_date'],
+                        'arrival_time'   => $data['dropoff_time'],
+                        'departure_time' => $data['pickup_time'],
+                        'dog_names'      => WDDP_DogHelper::extractDogNames($data['dogs']),
+                        'notes'          => $data['notes'],
+                ]);
+
+                $mail = WDDP_MailManager::buildMail(WDDP_Mail::MAIL_APPROVED, $placeholders);
+                $mail->send($data['email']);
+            }
+
             wp_redirect(admin_url('admin.php?page=wddp_menu&wddp_notice=updated'));
             exit;
         } catch (\Throwable $e) {
@@ -112,7 +128,7 @@ class WDDP_AdminCreateBookingPage extends WDDP_AdminPage
                         <?php $this->sectionFormDogs(); ?>
                     </div>
                 </div>
-                <?php submit_button('Gem booking'); ?>
+                <?php submit_button('Gem booking', 'primary', 'submit-booking', false, ['id' => 'submit-booking']); ?>
             </form>
         </div>
         <?php

@@ -102,6 +102,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const div = document.createElement('div');
         div.className = 'dog-block';
+        div.style.border = '1px solid #ccc';
+        div.style.padding = '1em';
+        div.style.marginBottom = '1em';
         div.innerHTML = `
             <strong>Hund ${count + 1}</strong>
             <p><label>Navn<br><input type="text" name="dogs[${count}][name]" required></label></p>
@@ -137,5 +140,44 @@ document.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('load', () => {
         updatePrice();
     });
+
+
+
+    const submitBtn = document.getElementById('submit-booking');
+
+    function validateForm() {
+        const requiredInputs = document.querySelectorAll(
+            'input[name="first_name"], input[name="last_name"], input[name="email"], input[name="phone"], ' +
+            'input[name="address"], input[name="postal_code"], input[name="city"], ' +
+            'input[name="dropoff_date"], input[name="pickup_date"], ' +
+            'input[name="dogs[0][name]"], input[name="dogs[0][breed]"], input[name="dogs[0][age]"], input[name="dogs[0][weight]"]'
+        );
+
+        const allFilled = Array.from(requiredInputs).every(input => input.value.trim() !== '');
+
+        const priceVal = parseFloat(manualInput.value);
+        const hasPrice = !isNaN(priceVal) && priceVal > 0;
+
+        submitBtn.disabled = !(allFilled && hasPrice);
+    }
+
+    // Trigger validation when inputs change
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+        el.addEventListener('input', validateForm);
+        el.addEventListener('change', validateForm);
+    });
+
+    // Validate form whenever price is recalculated
+    const originalUpdatePrice = updatePrice;
+    updatePrice = function () {
+        originalUpdatePrice();
+        setTimeout(validateForm, 300); // Give price some time to be set
+    };
+
+    // Initial validation
+    submitBtn.disabled = true;
+    validateForm();
+
+
 });
 
