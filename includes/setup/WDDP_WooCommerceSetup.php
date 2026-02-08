@@ -17,6 +17,7 @@ class WDDP_WooCommerceSetup
         add_filter('woocommerce_email_enabled_customer_completed_order', [static::class, 'maybeSuppressCustomerMail'], 10, 2);
         add_filter('woocommerce_email_enabled_customer_on_hold_order', [static::class, 'maybeSuppressCustomerMail'], 10, 2);
         add_filter('woocommerce_email_enabled_customer_invoice', [static::class, 'maybeSuppressCustomerMail'], 10, 2);
+        add_filter('woocommerce_email_enabled_customer_cancelled_order', [static::class, 'maybeSuppressCustomerMail'], 10, 2);
 
         // Undgå mail til admin
         add_filter('woocommerce_email_enabled_new_order', [static::class, 'maybeSuppressCustomerMail'], 10, 2);
