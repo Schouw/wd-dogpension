@@ -13,14 +13,17 @@ require_once WT_DOG_PENSION_PATH . 'includes/utils/WDDP_StatusHelper.php';
 require_once WT_DOG_PENSION_PATH . 'includes/utils/WDDP_DogHelper.php';
 require_once WT_DOG_PENSION_PATH . 'includes/utils/WDDP_DateHelper.php';
 
+require_once WT_DOG_PENSION_PATH . 'includes/model/WDDP_Booking.php';
+require_once WT_DOG_PENSION_PATH . 'includes/model/WDDP_Mail.php';
+
+require_once WT_DOG_PENSION_PATH . 'includes/persistence/WDDP_BookingPersistence.php';
+
 require_once WT_DOG_PENSION_PATH . 'includes/business/WDDP_BookingManager.php';
 require_once WT_DOG_PENSION_PATH . 'includes/business/WDDP_WooCommerceManager.php';
 require_once WT_DOG_PENSION_PATH . 'includes/business/WDDP_MailManager.php';
 
 require_once WT_DOG_PENSION_PATH . 'includes/logic/WDDP_BookingValidator.php';
 
-require_once WT_DOG_PENSION_PATH . 'includes/model/WDDP_Booking.php';
-require_once WT_DOG_PENSION_PATH . 'includes/model/WDDP_Mail.php';
 
 require_once WT_DOG_PENSION_PATH . 'includes/admin/WDDP_AdminMenu.php';
 require_once WT_DOG_PENSION_PATH . 'includes/admin/pages/WDDP_AdminPage.php';

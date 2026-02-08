@@ -3,6 +3,8 @@
 class WDDP_DateHelper
 {
 
+    //TODO: REFACT AND DOC
+
     // Konverterer enhver af vores forventede inputs til ISO (Y-m-d). Returnerer '' hvis ugyldig.
     public static function to_iso( $val ): string {
         $val = trim( (string) $val );

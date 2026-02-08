@@ -2,6 +2,8 @@
 
 class WDDP_Options
 {
+    //TODO: REFACT AND DOC
+
 
     const OPTION_PRICES = 'wddp_hp_prices';
     const OPTION_WC = 'wddp_hp_wc';

@@ -2,6 +2,9 @@
 
 class WDDP_WooCommerceSetup
 {
+    //TODO: REFACT AND DOC
+
+
     public static function init(){
         add_filter('woocommerce_get_item_data', [static::class, 'getItemData'], 10, 2);
         add_action('woocommerce_checkout_create_order_line_item', [static::class, 'createOrderLine'], 10, 4);
@@ -34,43 +37,6 @@ class WDDP_WooCommerceSetup
 
         }
     }
-
-    public static function maybeShowBookingNotice() {
-        error_log("hasBookingProduct ". self::$hasBookingProduct);
-        if (! self::$hasBookingProduct) return;
-
-        wc_print_notice(
-            '<strong>Bemærk ved booking:</strong> Din booking er endnu ikke garanteret – den skal først godkendes. Vi hæver ikke beløbet før godkendelse.',
-            'notice'
-        );
-    }
-
-
-    public static function showBookingNoticeIfNeeded() {
-        error_log("inside showBookingNoticeIfNeeded");
-        // Hent booking-produkt fra dine indstillinger
-        $settings = WDDP_Options::get(WDDP_Options::OPTION_WC);
-        $booking_product_id = intval($settings['product_id'] ?? 0);
-        if (! $booking_product_id) return;
-
-        // Tjek om produktet er i kurven
-        $found = false;
-        foreach (WC()->cart->get_cart() as $item) {
-            if ((int) $item['product_id'] === $booking_product_id) {
-                $found = true;
-                break;
-            }
-        }
-
-        // Hvis fundet, vis besked
-        if ($found) {
-            wc_print_notice(
-                '<strong>Bemærk ved booking:</strong> Din booking er endnu ikke garanteret – den skal først godkendes. Vi hæver ikke beløbet før godkendelse.',
-                'notice'
-            );
-        }
-    }
-
 
     public static function maybeSuppressCustomerMail($enabled, $order) {
         if (! $order instanceof WC_Order) return $enabled;

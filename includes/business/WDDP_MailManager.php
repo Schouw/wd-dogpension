@@ -3,6 +3,9 @@
 class WDDP_MailManager
 {
 
+    //TODO: REFACT AND DOC
+
+
 
     public static function buildMail($mailType, $placerholders){
 

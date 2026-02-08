@@ -2,6 +2,8 @@
 
 class WDDP_AdminMailTextPage extends WDDP_AdminPage
 {
+    //TODO: REFACT AND DOC
+
 
     public function renderPage()
     {

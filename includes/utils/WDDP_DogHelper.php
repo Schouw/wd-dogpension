@@ -2,6 +2,22 @@
 
 class WDDP_DogHelper
 {
+    //TODO: REFACT AND DOC
+
+    public static function extractDogNames($dogs): array
+    {
+        if (!is_array($dogs)) return [];
+
+        // Filtrér kun dem med 'name' key
+        $valid_dogs = array_filter($dogs, function($dog) {
+            return is_array($dog) && isset($dog['name']);
+        });
+
+        return array_column($valid_dogs, 'name');
+    }
+
+
+
     public static function encode( array $dogs ): string {
         $dogs = array_values( array_slice( array_map( [__CLASS__, 'sanitize_dog'], $dogs ), 0, 10 ) );
         return wp_json_encode( $dogs );

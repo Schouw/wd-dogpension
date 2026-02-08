@@ -3,6 +3,10 @@
 class WDDP_DatabaseSetup {
 
     const WDDP_DATABASE_NAME = "wddp_dogpension";
+
+    /**
+     * Create the database tables for WDDP_DATABASE_NAME
+     */
     public static function install() {
         global $wpdb;
 

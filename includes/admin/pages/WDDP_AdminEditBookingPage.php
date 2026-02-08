@@ -2,9 +2,12 @@
 
 class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
 
+    //TODO: REFACT AND DOC
+
+
     public function __construct() {
         parent::__construct();
-        add_action('admin_post_wddp_update_booking', [$this, 'wddp_handle_admin_booking_update']);
+        add_action('admin_post_wddp_update_booking', [static::class, 'handleBookingUpdate']);
     }
 
     public static function calculateBookingChanges(WDDP_Booking $booking, array $new_data): array
@@ -83,30 +86,6 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
     }
 
 
-    public static function recordBookingChanges(WDDP_Booking $booking, array $changes): void
-    {
-        if (empty($changes)) {
-            return;
-        }
-
-        global $wpdb;
-        $table = $wpdb->prefix . WDDP_DatabaseSetup::WDDP_DATABASE_NAME;
-
-        $existing_log = maybe_unserialize($booking->getChangeLog());
-        if (!is_array($existing_log)) {
-            $existing_log = [];
-        }
-
-        $existing_log[] = [
-            'changed_at' => current_time('mysql'),
-            'user'       => wp_get_current_user()->user_email,
-            'changes'    => $changes,
-        ];
-
-        $wpdb->update($table, [
-            'change_log' => maybe_serialize($existing_log)
-        ], ['id' => $booking->getId()]);
-    }
 
     /**
      * @param $order
@@ -256,7 +235,6 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
                 $orderstatus = $order->get_status(); // fx 'on-hold', 'processing', 'completed', 'pending'
 
                 // Tillad kun redigering hvis ordren ikke er betalt/håndteret
-                error_log($orderstatus);
                 if (in_array($orderstatus, ['pending', 'on-hold', 'processing'], true)) {
                     $can_edit = true;
                 } else {
@@ -494,19 +472,17 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
         }
 
 
-        global $wpdb;
-        $table = $wpdb->prefix . WDDP_DatabaseSetup::WDDP_DATABASE_NAME;
-
-        $wpdb->update($table, [
+        // Opdater booking via persistence-laget
+        WDDP_BookingPersistence::updateBooking($booking_id, [
             'dropoff_date'  => $from,
             'pickup_date'   => $to,
             'dropoff_time'  => $arrival,
             'pickup_time'   => $departure,
-            'dog_names'     => maybe_serialize($dog_names),
-            'dog_data'      => maybe_serialize($dogs),
+            'dog_names'     => $dog_names,
+            'dogs'          => $dogs,
             'price'         => $final_price,
             'notes'         => $notes,
-        ], ['id' => $booking_id], ['%s','%s','%s','%s','%s','%s','%f','%s'], ['%d']);
+        ]);
 
         $new_data = [
             'from_date'      => $from,
@@ -530,7 +506,7 @@ class WDDP_AdminEditBookingPage extends WDDP_AdminPage {
         }
 
 
-        self::recordBookingChanges($booking, $changes);
+        WDDP_BookingPersistence::updateChangeLogForBooking($booking_id, $changes);
 
         if($order)
             self::opdaterWooCommerceOrdre($order, $from, $to, $arrival, $departure, $dogs, $dog_names, $notes, $final_price, $dog);

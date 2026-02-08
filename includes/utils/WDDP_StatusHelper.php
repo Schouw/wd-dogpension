@@ -2,6 +2,7 @@
 
 class WDDP_StatusHelper
 {
+    //TODO: REFACT AND DOC
 
     const PENDING_REVIEW = 'pending_review';
     const APPROVED = 'approved';

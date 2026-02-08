@@ -2,6 +2,8 @@
 
 class WDDP_DebugMailSetup
 {
+    //TODO: REFACT AND DOC
+
 
     public static function setupDebugEmail() {
         // SÆT EN AFSENDER (DKIM/DMARC bliver nemmere)

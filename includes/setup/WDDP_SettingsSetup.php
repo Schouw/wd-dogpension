@@ -1,6 +1,7 @@
 <?php
 
 class WDDP_SettingsSetup {
+    //TODO: REFACT AND DOC
 
 
 

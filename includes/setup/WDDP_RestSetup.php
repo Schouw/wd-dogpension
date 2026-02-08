@@ -2,6 +2,8 @@
 
 class WDDP_RestSetup
 {
+    //TODO: REFACT AND DOC
+
 
     public static $apiName = "wddp_api";
 
@@ -100,7 +102,6 @@ class WDDP_RestSetup
         $errors = WDDP_BookingValidator::validateCore($validatedData);
 
         if (!empty($errors)) {
-            error_log(print_r($errors, true));
             return new \WP_Error('booking_invalid', implode(' ', $errors), ['status' => 400]);
         }
 

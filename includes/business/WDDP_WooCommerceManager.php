@@ -1,7 +1,9 @@
 <?php
 
-class WDDP_WooCommerceManager
+    class WDDP_WooCommerceManager
 {
+
+    //TODO: REFACT AND DOC
 
 
     public static function validateBookingProduct(\WC_Product $product): array {
@@ -60,8 +62,9 @@ class WDDP_WooCommerceManager
         return true; // kun booking-produkt
     }
 
-    public static function createBookingInDatabase($order){
-        global $wpdb;
+        public static function createBookingInDatabase($order){
+
+        //TODO: MOVE TO CLASS FOR WOO AND BOOKING AND RENAME TO CREATE FROM FRONTEND
 
         foreach ($order->get_items() as $item) {
             $product_id = $item->get_product_id();
@@ -75,95 +78,71 @@ class WDDP_WooCommerceManager
 
             if (!is_array($raw_booking)) continue;
 
-            $booking_data = [
-                'from_date'      => $raw_booking['from_date'] ?? '',
-                'to_date'        => $raw_booking['to_date'] ?? '',
-                'arrival_time'   => $raw_booking['arrival_time'] ?? '',
-                'departure_time' => $raw_booking['departure_time'] ?? '',
-                'dogs'           => $raw_booking['dogs'] ?? [],
-                'dog_names'      => array_column($raw_booking['dogs'] ?? [], 'name'),
-                'notes'          => '', // ← evt. senere udvide booking_data med samlet "notes"
+            // Build data arrau from booking form and woo order
+            $data = [
+                'first_name'    => $order->get_billing_first_name(),
+                'last_name'     => $order->get_billing_last_name(),
+                'email'         => $order->get_billing_email(),
+                'phone'         => $order->get_billing_phone(),
+                'address'       => $order->get_billing_address_1(),
+                'postal_code'   => $order->get_billing_postcode(),
+                'city'          => $order->get_billing_city(),
+                'dropoff_date'  => $raw_booking['from_date'],
+                'pickup_date'   => $raw_booking['to_date'],
+                'dropoff_time'  => $raw_booking['arrival_time'],
+                'pickup_time'   => $raw_booking['departure_time'],
+                'dog_names'     => array_column($raw_booking['dogs'] ?? [], 'name'), //TODO: USE DOG HELPER
+                'dogs'      => $raw_booking['dogs'] ?? [],
+                'price'         => $order->get_total(),
+                'notes' => trim($raw_booking['notes'] ?? ''),
             ];
 
-            // Kundeinfo
-            $first_name = $order->get_billing_first_name();
-            $last_name  = $order->get_billing_last_name();
-            $email      = $order->get_billing_email();
-            $phone      = $order->get_billing_phone();
-            $address    = $order->get_billing_address_1();
-            $postal     = $order->get_billing_postcode();
-            $city       = $order->get_billing_city();
+            $booking_id = WDDP_BookingPersistence::createBooking($data, WDDP_StatusHelper::PENDING_REVIEW);
+            WDDP_BookingPersistence::addOrderIdToBooking($booking_id, $order->get_id());
 
-            $table = $wpdb->prefix . WDDP_DatabaseSetup::WDDP_DATABASE_NAME;
+            $placeholders = static::buildPlaceholdersFromOrder($order, $data);
+            $mail = WDDP_MailManager::buildMail(WDDP_Mail::MAIL_PENDING_CUSTOMER, $placeholders);
+            $mail->send($order->get_billing_email());
 
-            $existing = $wpdb->get_var(
-                $wpdb->prepare("SELECT COUNT(*) FROM {$table} WHERE order_id = %d", $order->get_id())
-            );
-
-            if ($existing > 0) {
-                // Allerede en booking med denne ordre – stop
-                return;
+            $settings = WDDP_Options::get(WDDP_Options::OPTION_WC);
+            if (!empty($settings['notify_admin_on_create'])) {
+                $admin_email = get_option('admin_email');
+                $mail = WDDP_MailManager::buildMail(WDDP_Mail::MAIL_PENDING_ADMIN, $placeholders);
+                $mail->send($admin_email);
             }
-
-            $wpdb->insert($table, [
-                'order_id'      => $order->get_id(),
-                'status'        => WDDP_StatusHelper::PENDING_REVIEW,
-                'first_name'    => $first_name,
-                'last_name'     => $last_name,
-                'email'         => $email,
-                'phone'         => $phone,
-                'address'       => $address,
-                'postal_code'   => $postal,
-                'city'          => $city,
-                'dropoff_date'  => $booking_data['from_date'],
-                'pickup_date'   => $booking_data['to_date'],
-                'dropoff_time'  => $booking_data['arrival_time'],
-                'pickup_time'   => $booking_data['departure_time'],
-                'dog_names'     => maybe_serialize($booking_data['dog_names']),
-                'dog_data'      => maybe_serialize($booking_data['dogs']),
-                'price'         => $order->get_total(),
-                'notes'         => trim($booking_data['notes']),
-            ]);
-
-        }
-
-        $placeholders = static::buildPlaceholdersFromOrder($order, $booking_data);
-        $mail = WDDP_MailManager::buildMail(WDDP_Mail::MAIL_PENDING_CUSTOMER, $placeholders);
-        $mail->send($email);
-
-        $settings = WDDP_Options::get(WDDP_Options::OPTION_WC);
-        if (!empty($settings['notify_admin_on_create'])) {
-            $admin_email = get_option('admin_email');
-            $mail = WDDP_MailManager::buildMail(WDDP_Mail::MAIL_PENDING_ADMIN, $placeholders);
-            $mail->send($admin_email);
         }
     }
 
-    public static function buildPlaceholdersFromOrder(\WC_Order $order, array $booking_data): array {
-        // Parse datoer
-        $dates = explode('→', $booking_data['from_date']);
-        $dropoff_date = isset($dates[0]) ? trim($dates[0]) : '';
-        $pickup_date  = isset($dates[1]) ? trim($dates[1]) : '';
+        public static function buildPlaceholdersFromOrder(\WC_Order $order, array $booking_data): array {
+            // Brug korrekte feltnavne fra frontend/order data
+            $dropoff_date = $booking_data['dropoff_date'] ?? '';
+            $pickup_date  = $booking_data['pickup_date'] ?? '';
+            $dropoff_time = $booking_data['dropoff_time'] ?? '';
+            $pickup_time  = $booking_data['pickup_time'] ?? '';
+            $dog_names = is_array($booking_data['dog_names'] ?? null)
+                ? implode(', ', $booking_data['dog_names'])
+                : '';
 
-        return [
-            'first_name'    => $order->get_billing_first_name(),
-            'last_name'     => $order->get_billing_last_name(),
-            'email'         => $order->get_billing_email(),
-            'phone'         => $order->get_billing_phone(),
-            'address'       => $order->get_billing_address_1(),
-            'postal_code'   => $order->get_billing_postcode(),
-            'city'          => $order->get_billing_city(),
-            'dropoff_date'  => $dropoff_date,
-            'pickup_date'   => $pickup_date,
-            'dropoff_time'  => $booking_data['arrival_time'],
-            'pickup_time'   => $booking_data['departure_time'],
-            'dog_names'     => implode(', ', $booking_data['dog_names'] ?? []),
-            'booking_id'    => $order->get_id(),
-            'site_name'     => get_bloginfo('name'),
-            'notes'         => trim($booking_data['notes']),
-            'changes'       => $booking_data['changes'],
-        ];
-    }
+            return [
+                'first_name'    => $order->get_billing_first_name(),
+                'last_name'     => $order->get_billing_last_name(),
+                'email'         => $order->get_billing_email(),
+                'phone'         => $order->get_billing_phone(),
+                'address'       => $order->get_billing_address_1(),
+                'postal_code'   => $order->get_billing_postcode(),
+                'city'          => $order->get_billing_city(),
+                'dropoff_date'  => $dropoff_date,
+                'pickup_date'   => $pickup_date,
+                'dropoff_time'  => $dropoff_time,
+                'pickup_time'   => $pickup_time,
+                'dog_names'     => $dog_names,
+                'booking_id'    => $order->get_id(),
+                'site_name'     => get_bloginfo('name'),
+                'notes'         => trim($booking_data['notes'] ?? ''),
+                'changes'       => $booking_data['changes'] ?? '',
+            ];
+        }
+
 
     public static function getBookingDisplayMeta(array $booking): array {
         $item_data = [];

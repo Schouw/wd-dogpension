@@ -2,6 +2,9 @@
 
 class WDDP_EnqueueSetup
 {
+
+    //TODO: REFACT AND DOC
+
     public static function init(){
         add_action('admin_enqueue_scripts', [self::class, 'adminAssets']);
         add_action('wp_enqueue_scripts', [self::class, 'frontendAssets']);

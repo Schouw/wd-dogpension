@@ -2,6 +2,9 @@
 
 class WDDP_BookingValidator {
 
+    //TODO: REFACT AND DOC
+
+
     /**
      * Basisvalidering (fælles for alle scenarier)
      * Tjekker datoer, tider, hunde.

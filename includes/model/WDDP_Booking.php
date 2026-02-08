@@ -46,17 +46,7 @@ class WDDP_Booking{
 
     protected function load()
     {
-        global $wpdb;
-
-        $table = $wpdb->prefix . WDDP_DatabaseSetup::WDDP_DATABASE_NAME;
-        $row = $wpdb->get_row(
-            $wpdb->prepare(
-                "SELECT * FROM {$table} WHERE id = %d LIMIT 1",
-                $this->id
-            ),
-            ARRAY_A
-        );
-
+        $row = WDDP_BookingPersistence::getBookingRow($this->id);
 
         if (!$row) {
             throw new \Exception("Bookning med id $this->id findes ikke.");

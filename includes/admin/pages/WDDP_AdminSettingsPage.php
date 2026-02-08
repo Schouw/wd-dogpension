@@ -3,6 +3,9 @@
     class WDDP_AdminSettingsPage extends WDDP_AdminPage
     {
 
+        //TODO: REFACT AND DOC
+
+
         public function renderPage()
         {
             $tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'prices';

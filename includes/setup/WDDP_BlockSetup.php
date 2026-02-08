@@ -2,6 +2,9 @@
 
 class WDDP_BlockSetup
 {
+    //TODO: REFACT AND DOC
+
+
     public static function init() {
         add_filter('block_categories_all', [self::class, 'registerBlockCategory'], 10, 2);
         add_action('init', [self::class, 'registerBlocks']);

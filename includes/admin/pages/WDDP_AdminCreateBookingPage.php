@@ -2,6 +2,8 @@
 
 class WDDP_AdminCreateBookingPage extends WDDP_AdminPage
 {
+    //TODO: REFACT AND DOC
+
     private static $validation_errors = [];
     private array $form_data = [];
 
@@ -24,11 +26,14 @@ class WDDP_AdminCreateBookingPage extends WDDP_AdminPage
                 'pickup_date'    => WDDP_DateHelper::to_iso($in['pickup_date'] ?? ''),
                 'dropoff_time'   => sanitize_text_field($in['dropoff_time'] ?? ''),
                 'pickup_time'    => sanitize_text_field($in['pickup_time'] ?? ''),
-                'dogs'           => is_array($in['dogs'] ?? null) ? array_values($in['dogs']) : [],
+                'dogs' => is_array($in['dogs'] ?? null)
+                        ? array_values(array_filter($in['dogs'], fn($dog) => is_array($dog) && !empty($dog['name'])))
+                        : [],
                 'notes'          => wp_kses_post($in['notes'] ?? ''),
                 'override_price' => !empty($in['override_price']),
                 'price'          => isset($in['price']) ? (float)$in['price'] : null,
         ];
+        $data['dog_names'] = WDDP_DogHelper::extractDogNames($data['dogs']);
 
         $opts = [
                 'send_approved_mail' => !empty($in['send_approved_mail']),
@@ -47,16 +52,14 @@ class WDDP_AdminCreateBookingPage extends WDDP_AdminPage
             // TODO: Flyt til WDDP_BookingWorkflow::createFromAdmin() senere
 
             // 1. Opret booking
-            $booking_id = WDDP_BookingManager::create($data, $opts);
+            $booking_id = WDDP_BookingManager::create($data, $opts, WDDP_StatusHelper::APPROVED);
 
             // 2. Hvis ønsket, opret Woo ordre
             if (!empty($opts['create_woo_order'])) {
                 $order_id = WDDP_WooCommerceManager::createOrderFromBookingData($data);
 
                 if ($order_id) {
-                    global $wpdb;
-                    $table = $wpdb->prefix . WDDP_DatabaseSetup::WDDP_DATABASE_NAME;
-                    $wpdb->update($table, ['order_id' => $order_id], ['id' => $booking_id], ['%d'], ['%d']);
+                   WDDP_BookingPersistence::addOrderIdToBooking($booking_id, $order_id);
                 } else {
                     error_log("Kunne ikke oprette WooCommerce ordre for booking #{$booking_id}");
                 }
