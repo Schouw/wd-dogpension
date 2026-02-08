@@ -309,8 +309,6 @@ const BookingForm = () => {
         v === '' || v === null || Number.isNaN(Number(v));
 
     const handleSubmit = async () => {
-        setIsSubmitting(true);
-        setSubmitted(true);
 
         // 1) dato-fejl
         const dErr = validateDates(fromDate, toDate);
@@ -363,13 +361,12 @@ const BookingForm = () => {
 
         // Hvis valid, så udfør booking
         try {
-
+            setIsSubmitting(true);
+            setSubmitted(true);
             setMessage('Formularen er klar til at blive sendt! ✅');
             await  submitBooking();
-
         }
         catch (e) {
-            setIsSubmitting(false);
         }
         finally {
             setIsSubmitting(false);
@@ -387,7 +384,7 @@ const BookingForm = () => {
 
     return (
         <div className="mhhc-booking-form">
-            <h2>Book en plads i hundepensionen</h2>
+            <h2>Book en plads i hundepensionen test</h2>
 
             <div className="mhhc-form-grid">
                 <FieldWithInfo
